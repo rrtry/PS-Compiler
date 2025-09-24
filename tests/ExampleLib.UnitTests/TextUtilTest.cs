@@ -99,4 +99,39 @@ public class TextUtilTest
         List<string> actual = TextUtil.ExtractWords(text);
         Assert.Equal(expected, actual);
     }
+
+    public static TheoryData<string, byte, byte, byte> ValidHexColors => new TheoryData<string, byte, byte, byte>
+    {
+        { "#FF0000", 255, 0, 0 },
+        { "#00FF00", 0, 255, 0 },
+        { "#0000FF", 0, 0, 255 },
+        { "#FFFFFF", 255, 255, 255 },
+        { "#000000", 0, 0, 0 },
+    };
+
+    [Theory]
+    [MemberData(nameof(ValidHexColors))]
+    public void ParseCssRbgColor_ValidInput_ReturnsExpectedRgb(string hex, byte expectedR, byte expectedG, byte expectedB)
+    {
+        TextUtil.RgbColor color = TextUtil.ParseCssRbgColor(hex);
+        Assert.Equal(expectedR, color.R);
+        Assert.Equal(expectedG, color.G);
+        Assert.Equal(expectedB, color.B);
+    }
+
+    public static TheoryData<string> InvalidHexColors => new TheoryData<string>
+    {
+        "#ZZZZZZ",
+        "#12345",
+        "FF0000",
+        "#1234567",
+        ""
+    };
+
+    [Theory]
+    [MemberData(nameof(InvalidHexColors))]
+    public void ParseCssRbgColor_InvalidInput_ThrowsFormatException(string hex)
+    {
+        Assert.Throws<FormatException>(() => TextUtil.ParseCssRbgColor(hex));
+    }
 }

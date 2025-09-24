@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Text;
 
 namespace ExampleLib;
@@ -17,6 +18,55 @@ public static class TextUtil
         Letter,
         Hyphen,
         Apostrophe,
+    }
+
+    // Структура, хранящая RGB значения
+    public struct RgbColor
+    {
+        public byte R;
+        public byte G;
+        public byte B;
+
+        public RgbColor(byte r, byte g, byte b)
+        {
+            R = r;
+            G = g;
+            B = b;
+        }
+    }
+
+    public static RgbColor ParseCssRbgColor(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text) || text[0] != '#')
+        {
+            throw new FormatException("Color must start with '#'.");
+        }
+
+        string hex = text.Substring(1);
+        if (hex.Length == 3)
+        {
+            hex = string.Concat(
+                hex[0], hex[0],
+                hex[1], hex[1],
+                hex[2], hex[2]
+            );
+        }
+        else if (hex.Length != 6)
+        {
+            throw new FormatException("Color must have 3 or 6 hex digits.");
+        }
+
+        try
+        {
+            byte r = byte.Parse(hex.Substring(0, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            byte g = byte.Parse(hex.Substring(2, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            byte b = byte.Parse(hex.Substring(4, 2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
+            return new RgbColor(r, g, b);
+        }
+        catch
+        {
+            throw new FormatException("Color is in invalid format");
+        }
     }
 
     /// <summary>
