@@ -13,11 +13,13 @@
 | Область видимости | Определяется уровнем отступа | Определяется скобками |
 
 Пример
+- **Python:**
  ```python
 if x > 0:
     print(x)
 ```
 
+- **C#:**
 ```csharp
 if (x > 0) 
 {
@@ -37,6 +39,7 @@ if (x > 0)
 | Условия | Без скобок, логические выражения | В круглых скобках |
 
 Пример
+- **Python:**
  ```python
 if a > b:
     print(a)
@@ -46,6 +49,7 @@ else:
     print(b)
 ``` 
 
+- **C#:**
 ```csharp
 if (a > b) 
 {
@@ -74,11 +78,13 @@ else
 | Прерывания | `break`, `continue` | `break`, `continue` |
 
 Пример
+- **Python:**
  ```python
 for i in range(5):
     print(i)
-``` 
+```
 
+- **C#:**
 ```csharp
 for (int i = 0; i < 5; i++) 
 {
@@ -109,11 +115,12 @@ for (int i = 0; i < 5; i++)
 | Возврат значения | `return` | `return` |
  
  Пример 
+- **Python:**
 ```python
 def add(a, b):
     return a + b
 ```
-
+- **C#:**
 ```csharp
 int Add(int a, int b) 
 {
