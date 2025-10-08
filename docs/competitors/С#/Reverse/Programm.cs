@@ -1,10 +1,10 @@
-﻿
-namespace ProgramName
+﻿namespace ProgramName
 {
     public static class Programm
     {
         private static void Main(string[] args)
         {
+            Console.WriteLine("Введите строку");
             string? str = Console.ReadLine();
             if (!string.IsNullOrEmpty(str))
             {

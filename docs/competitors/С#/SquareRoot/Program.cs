@@ -8,7 +8,7 @@
             double number = Convert.ToDouble(Console.ReadLine());
             if (number >= 0)
             {
-                Console.WriteLine($"Корень числа {number} равен {Math.Sqrt(number):F2}");
+                Console.WriteLine($"Корень числа {number} равен {Math.Sqrt(number)}");
             }
             else
             {

@@ -6,7 +6,14 @@
         {
             Console.WriteLine("Введите радиус круга:");
             double radiusCircle = Convert.ToDouble(Console.ReadLine());
-            Console.WriteLine($"Площадь круга: {Math.PI * radiusCircle * radiusCircle:F2}");
+            if (radiusCircle > 0)
+            {
+                Console.WriteLine($"Площадь круга: {Math.PI * radiusCircle * radiusCircle:F2}");
+            }
+            else
+            {
+                Console.WriteLine("Радиус должен быть положительным числом");
+            }
         }
     }
 }
