@@ -15,7 +15,7 @@
   ```python
   for i in range(5):
       if i % 2 == 0:
-          print(i)
+          print(i) 
   ```
  В C# используются фигурные скобки `{}`, в Python — отступы.
 
