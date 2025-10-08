@@ -36,8 +36,8 @@
 ---
 
 ## 3. Набор типов данных
-- **C#:** (`int`, `double`, `bool`, `char`), `string`, `struct`, `class`.  
-- **Python:** (`int`, `float`, `bool`, `str`, `list`, `dict`, `tuple`, `set`).  
+- **C#:** (`int`, `double`, `bool`, `char`, `string`), `struct`, `class`.  
+- **Python:** (`int`, `float`, `bool`, `str`, `list`, `dict`, `tuple`, `set`), class.  
 
 ---
 
