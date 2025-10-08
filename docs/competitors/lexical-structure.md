@@ -16,7 +16,8 @@
  ```python
 if x > 0:
     print(x)
-``` 
+```
+
 ```csharp
 if (x > 0) 
 {
@@ -44,6 +45,7 @@ elif a == b:
 else:
     print(b)
 ``` 
+
 ```csharp
 if (a > b) 
 {
@@ -76,6 +78,7 @@ else
 for i in range(5):
     print(i)
 ``` 
+
 ```csharp
 for (int i = 0; i < 5; i++) 
 {
@@ -110,6 +113,7 @@ for (int i = 0; i < 5; i++)
 def add(a, b):
     return a + b
 ```
+
 ```csharp
 int Add(int a, int b) 
 {
