@@ -77,6 +77,9 @@ public enum TokenType
     /// <summary>Деление (`/`).</summary>
     Slash,
 
+    /// <summary> Возведение в степень (`^`).</summary>
+    Exp,
+
     /// <summary>Остаток от деления (`%`).</summary>
     Percent,
 
@@ -90,7 +93,7 @@ public enum TokenType
     EqualEqual,
 
     /// <summary>Не равно (`!=`).</summary>
-    BangEqual,
+    NotEqual,
 
     /// <summary>Меньше (`<`).</summary>
     Less,
@@ -111,7 +114,7 @@ public enum TokenType
     OrOr,
 
     /// <summary>Логическое отрицание (`!`).</summary>
-    Bang,
+    Not,
 
     /// <summary>Левая фигурная скобка (`{`).</summary>
     LeftBrace,
@@ -136,15 +139,6 @@ public enum TokenType
 
     /// <summary>Точка с запятой (`;`).</summary>
     Semicolon,
-
-    /// <summary>Двоеточие (`:`).</summary>
-    Colon,
-
-    /// <summary>Однострочный комментарий (`// ...`).</summary>
-    LineComment,
-
-    /// <summary>Многострочный комментарий (`/* ... */`).</summary>
-    BlockComment,
 
     /// <summary>Конец файла.</summary>
     Eof,
