@@ -1,6 +1,6 @@
 ﻿namespace Lexer.UnitTests;
 
-public class UnitTest1
+public class LexerTests
 {
     [Fact]
     public void Test1()
