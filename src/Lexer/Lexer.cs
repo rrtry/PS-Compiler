@@ -2,7 +2,43 @@
 
 public class Lexer
 {
-    private static readonly Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
+    public static readonly List<TokenType> Operators = new List<TokenType>
+    {
+        TokenType.Assign,        // =
+        TokenType.Plus,          // +
+        TokenType.Minus,         // -
+        TokenType.Star,          // *
+        TokenType.Slash,         // /
+        TokenType.Exp,           // ^
+        TokenType.Percent,       // %
+        TokenType.PlusPlus,      // ++
+        TokenType.MinusMinus,    // --
+        TokenType.EqualEqual,    // ==
+        TokenType.NotEqual,      // !=
+        TokenType.Less,          // <
+        TokenType.LessEqual,     // <=
+        TokenType.Greater,       // >
+        TokenType.GreaterEqual,  // >=
+        TokenType.AndAnd,        // &&
+        TokenType.OrOr,          // ||
+        TokenType.Not,           // !
+    };
+
+    public static readonly List<TokenType> OtherLexems = new()
+    {
+        TokenType.LeftBrace,     // {
+        TokenType.RightBrace,    // }
+        TokenType.LeftParen,     // (
+        TokenType.RightParen,    // )
+        TokenType.LeftBracket,   // [
+        TokenType.RightBracket,  // ]
+        TokenType.Comma,         // ,
+        TokenType.Semicolon,     // ;
+        TokenType.Eof,           // End of file
+        TokenType.Unknown,        // Unknown or invalid token
+    };
+
+    public static readonly Dictionary<string, TokenType> Keywords = new Dictionary<string, TokenType>
     {
         { "fn",       TokenType.Fn },
         { "let",      TokenType.Let },

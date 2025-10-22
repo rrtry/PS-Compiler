@@ -11,6 +11,28 @@ public class LexerTests
         Assert.Equal(expected, actual);
     }
 
+    [Theory]
+    [MemberData(nameof(GetLexicalStats))]
+    public void Can_collect_stats(string filename, LexicalStats.Stats expected)
+    {
+        string root = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, @"../../../"));
+        string file = Path.Combine(root, "sources", filename);
+
+        LexicalStats.Stats actual = LexicalStats.CollectFromFile(file);
+        Assert.Equal(expected, actual);
+    }
+
+    public static TheoryData<string, LexicalStats.Stats> GetLexicalStats()
+    {
+        return new TheoryData<string, LexicalStats.Stats>
+        {
+            {
+                "square_root.lu",
+                new LexicalStats.Stats(8, 8, 2, 0, 2, 4, 19)
+            },
+        };
+    }
+
     public static TheoryData<string, List<Token>> GetTokenizeLanguageConstructiions()
     {
         return new TheoryData<string, List<Token>>
@@ -18,7 +40,7 @@ public class LexerTests
             {
                 "let i = input();", [
                     new Token(TokenType.Let),
-                    new Token(TokenType.Identifier),
+                    new Token(TokenType.Identifier, new TokenValue("i")),
                     new Token(TokenType.Assign),
                     new Token(TokenType.Input),
                     new Token(TokenType.LeftParen),
@@ -217,38 +239,29 @@ public class LexerTests
                 ]
             },
             {
-                "let helloEscaped = \"I said, \\\"Hello, \\\nWorld!\\\"\";", [
+                "let escapedQuotes = \"I said, \\\"Hello, World!\\\"\";", [
                     new Token(TokenType.Let),
-                    new Token(TokenType.Identifier, new TokenValue("helloEscaped")),
+                    new Token(TokenType.Identifier, new TokenValue("escapedQuotes")),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.StringLiteral, new TokenValue("I said, \"Hello, World!\"")),
+                    new Token(TokenType.Semicolon)
+                ]
+            },
+            {
+                "let escapedNewLineAndQuotes = \"I said, \\\"Hello, \\\nWorld!\\\"\";", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, new TokenValue("escapedNewLineAndQuotes")),
                     new Token(TokenType.Assign),
                     new Token(TokenType.StringLiteral, new TokenValue("I said, \"Hello, \nWorld!\"")),
                     new Token(TokenType.Semicolon)
                 ]
             },
             {
-                "let helloEscaped = \"I said, \\\"Hello, \\\tWorld!\\\"\";", [
+                "let escapedTabAndQuotes = \"I said, \\\"Hello, \\\tWorld!\\\"\";", [
                     new Token(TokenType.Let),
-                    new Token(TokenType.Identifier, new TokenValue("helloEscaped")),
+                    new Token(TokenType.Identifier, new TokenValue("escapedTabAndQuotes")),
                     new Token(TokenType.Assign),
                     new Token(TokenType.StringLiteral, new TokenValue("I said, \"Hello, \tWorld!\"")),
-                    new Token(TokenType.Semicolon)
-                ]
-            },
-            {
-                "let helloMultiLine = \"I said, \\\"Hello, World!\\\"\";", [
-                    new Token(TokenType.Let),
-                    new Token(TokenType.Identifier, new TokenValue("helloEscaped")),
-                    new Token(TokenType.Assign),
-                    new Token(TokenType.StringLiteral, new TokenValue("I said, \"Hello, \tWorld!\"")),
-                    new Token(TokenType.Semicolon)
-                ]
-            },
-            {
-                "let helloEscaped = \"I said, \\\"Hello, World!\\\"\";", [
-                    new Token(TokenType.Let),
-                    new Token(TokenType.Identifier, new TokenValue("helloEscaped")),
-                    new Token(TokenType.Assign),
-                    new Token(TokenType.StringLiteral, new TokenValue("I said, \"Hello, World!\"")),
                     new Token(TokenType.Semicolon)
                 ]
             },
