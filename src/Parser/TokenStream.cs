@@ -23,8 +23,10 @@ public class TokenStream
         return nextToken;
     }
 
-    public void Advance()
+    public Token Advance()
     {
+        Token previousToken = Peek();
         nextToken = lexer.ParseToken();
+        return previousToken;
     }
 }
