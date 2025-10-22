@@ -5,16 +5,16 @@ namespace Lexer;
 /// </summary>
 public class TextScanner(string expr)
 {
-    private readonly string _expr = expr;
-    private int _position;
+    private readonly string source = expr;
+    private int pos;
 
     /// <summary>
     ///  Читает на N символов вперёд текущей позиции (по умолчанию N=0).
     /// </summary>
     public char Peek(int n = 0)
     {
-        int position = _position + n;
-        return position >= _expr.Length ? '\0' : _expr[position];
+        int position = pos + n;
+        return position >= source.Length ? '\0' : source[position];
     }
 
     /// <summary>
@@ -22,11 +22,11 @@ public class TextScanner(string expr)
     /// </summary>
     public void Advance()
     {
-        _position++;
+        pos++;
     }
 
     public bool IsEnd()
     {
-        return _position >= _expr.Length;
+        return pos >= source.Length;
     }
 }

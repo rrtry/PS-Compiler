@@ -44,6 +44,9 @@ public enum TokenType
     /// <summary>Отсутствие значения (`null`).</summary>
     Null,
 
+    /// <summary>Встроенная функция вывода (`input`).</summary>
+    Input,
+
     /// <summary>Встроенная функция вывода (`print`).</summary>
     Print,
 

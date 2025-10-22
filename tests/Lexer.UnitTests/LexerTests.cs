@@ -16,6 +16,17 @@ public class LexerTests
         return new TheoryData<string, List<Token>>
         {
             {
+                "let i = input();", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.Input),
+                    new Token(TokenType.LeftParen),
+                    new Token(TokenType.RightParen),
+                    new Token(TokenType.Semicolon)
+                ]
+            },
+            {
                 "fn main() { return 42; }", [
                     new Token(TokenType.Fn),
                     new Token(TokenType.Identifier, new TokenValue("main")),
@@ -60,6 +71,36 @@ public class LexerTests
                     new Token(TokenType.LeftBrace),
                     new Token(TokenType.Identifier, new TokenValue("i")),
                     new Token(TokenType.PlusPlus),
+                    new Token(TokenType.Semicolon),
+                    new Token(TokenType.RightBrace)
+                ]
+            },
+            {
+                "while i < 10 { i++; continue; }", [
+                    new Token(TokenType.While),
+                    new Token(TokenType.Identifier, new TokenValue("i")),
+                    new Token(TokenType.Less),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(10)),
+                    new Token(TokenType.LeftBrace),
+                    new Token(TokenType.Identifier, new TokenValue("i")),
+                    new Token(TokenType.PlusPlus),
+                    new Token(TokenType.Semicolon),
+                    new Token(TokenType.Continue),
+                    new Token(TokenType.Semicolon),
+                    new Token(TokenType.RightBrace)
+                ]
+            },
+            {
+                "while i < 10 { i++; break; }", [
+                    new Token(TokenType.While),
+                    new Token(TokenType.Identifier, new TokenValue("i")),
+                    new Token(TokenType.Less),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(10)),
+                    new Token(TokenType.LeftBrace),
+                    new Token(TokenType.Identifier, new TokenValue("i")),
+                    new Token(TokenType.PlusPlus),
+                    new Token(TokenType.Semicolon),
+                    new Token(TokenType.Break),
                     new Token(TokenType.Semicolon),
                     new Token(TokenType.RightBrace)
                 ]
@@ -123,6 +164,42 @@ public class LexerTests
                     new Token(TokenType.Semicolon)
                 ]
             },
+            {
+                "let compare = 1 != 2", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, new TokenValue("compare")),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(1)),
+                    new Token(TokenType.NotEqual),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(2)),
+                ]
+            },
+            {
+                "let compare = 1 != 2 && 2 > 1 && 2 >= 1 && 1 < 2 && 1 <= 2", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, new TokenValue("compare")),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(1)),
+                    new Token(TokenType.NotEqual),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(2)),
+                    new Token(TokenType.AndAnd),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(2)),
+                    new Token(TokenType.Greater),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(1)),
+                    new Token(TokenType.AndAnd),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(2)),
+                    new Token(TokenType.GreaterEqual),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(1)),
+                    new Token(TokenType.AndAnd),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(1)),
+                    new Token(TokenType.Less),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(2)),
+                    new Token(TokenType.AndAnd),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(1)),
+                    new Token(TokenType.LessEqual),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(2)),
+                ]
+            },
         };
     }
 
@@ -140,11 +217,47 @@ public class LexerTests
                 ]
             },
             {
+                "let helloEscaped = \"I said, \\\"Hello, \\\nWorld!\\\"\";", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, new TokenValue("helloEscaped")),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.StringLiteral, new TokenValue("I said, \"Hello, \nWorld!\"")),
+                    new Token(TokenType.Semicolon)
+                ]
+            },
+            {
+                "let helloEscaped = \"I said, \\\"Hello, \\\tWorld!\\\"\";", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, new TokenValue("helloEscaped")),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.StringLiteral, new TokenValue("I said, \"Hello, \tWorld!\"")),
+                    new Token(TokenType.Semicolon)
+                ]
+            },
+            {
+                "let helloMultiLine = \"I said, \\\"Hello, World!\\\"\";", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, new TokenValue("helloEscaped")),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.StringLiteral, new TokenValue("I said, \"Hello, \tWorld!\"")),
+                    new Token(TokenType.Semicolon)
+                ]
+            },
+            {
                 "let helloEscaped = \"I said, \\\"Hello, World!\\\"\";", [
                     new Token(TokenType.Let),
                     new Token(TokenType.Identifier, new TokenValue("helloEscaped")),
                     new Token(TokenType.Assign),
                     new Token(TokenType.StringLiteral, new TokenValue("I said, \"Hello, World!\"")),
+                    new Token(TokenType.Semicolon)
+                ]
+            },
+            {
+                "let val = null;", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, new TokenValue("val")),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.Null),
                     new Token(TokenType.Semicolon)
                 ]
             },
