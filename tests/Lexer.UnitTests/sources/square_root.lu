@@ -1,0 +1,13 @@
+fn main()
+{
+    let num  = 64;
+    let root = sqrt(num);
+    let is_valid = root == 8;
+
+    if is_valid {
+        print("true");
+    }
+    else {
+        print("false");
+    }
+}
