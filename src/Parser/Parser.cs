@@ -10,7 +10,7 @@ public class Parser
 {
     private readonly TokenStream tokens;
     private readonly List<decimal> evaluated = new List<decimal>();
-    private readonly Dictionary<string, decimal> _environment = new();
+    private readonly Dictionary<string, decimal> scope = new();
 
     public Parser(string source)
     {
@@ -50,14 +50,16 @@ public class Parser
 
     private void ParseLetStatement()
     {
-        tokens.Advance(); // let
-        string name = tokens.Peek().Value!.ToString()!;
+        tokens.Advance();
+
+        Token identifier = Match(TokenType.Identifier);
+        string name = identifier.Value!.ToString();
 
         Match(TokenType.Assign);
         decimal value = ParsePrimary();
         Match(TokenType.Semicolon);
 
-        _environment[name] = value;
+        scope[name] = value;
     }
 
     private void ParsePrintStatement()
@@ -171,13 +173,13 @@ public class Parser
                 return token.Value!.ToDecimal();
 
             case TokenType.Identifier:
-                tokens.Advance();
+                string name = tokens.Advance().Value!.ToString();
                 if (tokens.Peek().Type == TokenType.LeftParen)
                 {
-                    return ParseFunctionCall();
+                    return ParseFunctionCall(name);
                 }
 
-                return _environment.TryGetValue(token.Value!.ToString()!, out decimal val) ? val : 0;
+                return scope.TryGetValue(token.Value!.ToString()!, out decimal val) ? val : 0;
 
             case TokenType.LeftParen:
                 tokens.Advance();
@@ -190,25 +192,48 @@ public class Parser
         }
     }
 
-    private decimal ParseFunctionCall()
+    /// <summary>
+    /// function_call   = identifier, "(", [ argument_list ], ")" ;
+    /// argument_list   = expression, { ",", expression } ;.
+    /// </summary>
+    private decimal ParseFunctionCall(string name)
     {
-        return 0;
+        Match(TokenType.LeftParen);
+        List<decimal> args = new();
+
+        if (tokens.Peek().Type != TokenType.RightParen)
+        {
+            do
+            {
+                args.Add(ParseExpression());
+            }
+            while (MatchOptional(TokenType.Comma));
+        }
+
+        Match(TokenType.RightParen);
+
+        return name switch
+        {
+            "abs" => (decimal)Math.Abs((double)args[0]),
+            "pow" => (decimal)Math.Pow((double)args[0], (double)args[1]),
+            "max" => (decimal)Math.Max((double)args[0], (double)args[1]),
+            "min" => (decimal)Math.Min((double)args[0], (double)args[1]),
+            _ => throw new Exception($"Unknown function {name}")
+        };
     }
 
-    private bool DoesMatch(TokenType expected)
+    private bool MatchOptional(TokenType type)
     {
-        try
+        if (tokens.Peek().Type == type)
         {
-            Match(expected);
+            tokens.Advance();
             return true;
         }
-        catch (UnexpectedLexemeException)
-        {
-            return false;
-        }
+
+        return false;
     }
 
-    private void Match(TokenType expected)
+    private Token Match(TokenType expected)
     {
         Token t = tokens.Peek();
         if (t.Type != expected)
@@ -216,6 +241,6 @@ public class Parser
             throw new UnexpectedLexemeException(expected, t);
         }
 
-        tokens.Advance();
+        return tokens.Advance();
     }
 }
