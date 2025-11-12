@@ -65,6 +65,14 @@ public class Lexer
         scanner = new TextScanner(source);
     }
 
+    public Token Peek(int count)
+    {
+        int pos = scanner.GetPosition();
+        Token token = ParseToken();
+        scanner.SetPosition(pos);
+        return token;
+    }
+
     public Token ParseToken()
     {
         SkipWhiteSpacesAndComments();

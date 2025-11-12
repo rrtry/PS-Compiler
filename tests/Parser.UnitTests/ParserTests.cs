@@ -13,6 +13,64 @@ public class ParserTests
         Assert.Equal(expected, evaluated);
     }
 
+    [Theory]
+    [MemberData(nameof(GetExamplePrograms))]
+    public void Can_interpret_simple_programs(string source, List<decimal> expected)
+    {
+        Parser p = new Parser(source);
+        List<decimal> evaluated = p.ParseStatements();
+        Assert.Equal(expected.Count, evaluated.Count);
+
+        for (int i = 0; i < evaluated.Count; i++)
+        {
+            if (!decimal.Equals(decimal.Round(expected[i], 2), decimal.Round(evaluated[i], 2)))
+            {
+                throw new Xunit.Sdk.XunitException($"Expected {expected[i]} but got {evaluated[i]}");
+            }
+        }
+    }
+
+    public static TheoryData<string, List<decimal>> GetExamplePrograms()
+    {
+        return new TheoryData<string, List<decimal>>
+        {
+            {
+                "let x = 1; " +
+                "let y = 2; " +
+                "print(x + y);",
+                new List<decimal> { 3 }
+            },
+            {
+                "let x = 1; " +
+                "let y = 2; " +
+                "y = 3; " +
+                "print(x + y);",
+                new List<decimal> { 4 }
+            },
+            {
+                "let x = 2; " +
+                "let y = 2; " +
+                "let result = pow(x + y, 0.5); " +
+                "print(result);",
+                new List<decimal> { 2 }
+            },
+            {
+                "let x = 2; " +
+                "let y = 2; " +
+                "let result = (x + y) ^ 0.5; " +
+                "print(result);",
+                new List<decimal> { 2 }
+            },
+            {
+                "let PI = 3.14159265358979323846; " +
+                "let radius = 10; " +
+                "let area = (radius ^ 2) * PI; " +
+                "print(area);",
+                new List<decimal> { new decimal(100.0 * 3.14159265358979323846) }
+            },
+        };
+    }
+
     public static TheoryData<string, List<decimal>> GetFunctionCalls()
     {
         return new TheoryData<string, List<decimal>>

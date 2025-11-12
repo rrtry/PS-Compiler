@@ -8,6 +8,16 @@ public class TextScanner(string expr)
     private readonly string source = expr;
     private int pos;
 
+    public int GetPosition()
+    {
+        return pos;
+    }
+
+    public void SetPosition(int newPos)
+    {
+        pos = newPos;
+    }
+
     /// <summary>
     ///  Читает на N символов вперёд текущей позиции (по умолчанию N=0).
     /// </summary>
