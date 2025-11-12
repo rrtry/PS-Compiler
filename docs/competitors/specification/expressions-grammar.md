@@ -74,16 +74,20 @@
 Ниже представлена грамматика.
 
 ```ebnf
+
+assignment_statement =
+    identifier, "=", expression ;
+
 (* Основное выражение *)
 expression = additive ;
 
 (* Арифметические операции *)
 additive        = multiplicative, { ("+" | "-"), multiplicative } ;
-multiplicative  = power, { ("*" | "/" | "%"), power } ;
-power           = unary, [ ("^" | "**"), power ] ;
-
+multiplicative   = unary, { ("*" | "/" | "%"), unary } ;
 (* Унарные операции *)
-unary           = [ ("+" | "-") ], primary ;
+unary            = [ ("+" | "-") ], power ;
+(*Возведение в степень*)
+power            = primary, { ("^" | "**"), power } ;
 
 (* Первичные выражения *)
 primary         = number
@@ -97,15 +101,9 @@ function_call   = identifier, "(", [ argument_list ], ")" ;
 argument_list   = expression, { ",", expression } ;
 
 (* Константы и литералы *)
-constant        = "Pi" | "Euler" | "MathPi" | "MathE" ;
+constant        = "Pi" | "Euler" ;
 number          = integer | float ;
 integer         = digit, { digit } ;
 float           = integer, ".", integer ;
 
-(* Идентификаторы *)
-identifier      = letter, { letter | digit | "_" } ;
-
-(* Лексические правила *)
-digit           = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
-letter          = "A" | "B" | ... | "Z" | "a" | ... | "z" ;
 ```
