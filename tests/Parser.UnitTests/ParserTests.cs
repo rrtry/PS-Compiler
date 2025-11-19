@@ -9,7 +9,7 @@ public class ParserTests
     public void Can_parse_statements(string source, List<decimal> expected)
     {
         Parser p = new Parser(source);
-        List<decimal> evaluated = p.ParseStatements();
+        List<decimal> evaluated = p.Parse();
         Assert.Equal(expected, evaluated);
     }
 
@@ -18,7 +18,7 @@ public class ParserTests
     public void Can_interpret_simple_programs(string source, List<decimal> expected)
     {
         Parser p = new Parser(source);
-        List<decimal> evaluated = p.ParseStatements();
+        List<decimal> evaluated = p.Parse();
         Assert.Equal(expected.Count, evaluated.Count);
 
         for (int i = 0; i < evaluated.Count; i++)
@@ -34,7 +34,7 @@ public class ParserTests
     [MemberData(nameof(GetExampleProgramsWithErrors))]
     public void Can_interpret_invalid_programs(string source, Type exception)
     {
-        Exception ex = Assert.Throws(exception, () => new Parser(source).ParseStatements());
+        Exception ex = Assert.Throws(exception, () => new Parser(source).Parse());
         Assert.Equal(exception, ex.GetType());
     }
 

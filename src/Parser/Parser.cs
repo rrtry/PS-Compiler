@@ -1,6 +1,7 @@
 namespace Parser;
 
 using Lexer;
+using Execution;
 
 /// <summary>
 /// Грамматика описана в файле `docs/specification/expressions-grammar.md`.
@@ -8,22 +9,31 @@ using Lexer;
 public class Parser
 {
     private readonly TokenStream tokens;
-    private readonly List<decimal> evaluated = new List<decimal>();
-    private readonly Dictionary<string, decimal> scope = new Dictionary<string, decimal>();
+
+    private readonly Context context = new Context();
+    private readonly IEnvironment environment = new FakeEnvironment();
 
     public Parser(string source)
     {
         tokens = new TokenStream(source);
     }
 
-    public List<decimal> ParseStatements()
+    public Parser(Context context, IEnvironment environment, string source)
     {
+        tokens = new TokenStream(source);
+        this.context = context;
+        this.environment = environment;
+    }
+
+    public List<decimal> Parse()
+    {
+        context.PushScope(new Scope());
         while (tokens.Peek().Type != TokenType.Eof)
         {
             ParseStatement();
         }
 
-        return evaluated;
+        return environment.GetEvaluated();
     }
 
     private void ParseStatement()
@@ -49,7 +59,7 @@ public class Parser
                 {
                     decimal value = ParseExpression();
                     Match(TokenType.Semicolon);
-                    evaluated.Add(value);
+                    environment.PrintDecimal(value);
                     break;
                 }
         }
@@ -64,21 +74,16 @@ public class Parser
         Token identifier = tokens.Advance();
         string name = identifier.Value!.ToString();
 
-        if (!scope.ContainsKey(name))
-        {
-            throw new Exception($"SyntaxError: {name} is not declared in the scope");
-        }
-
         Match(TokenType.Assign);
         decimal value = ParseExpression();
         Match(TokenType.Semicolon);
 
-        scope[name] = value;
+        context.AssignVariable(name, value);
     }
 
     /// <summary>
     /// assignment_statement =
-    /// identifier, "=", expression ;
+    /// identifier, "=", expression ;.
     /// </summary>
     private void ParseVariableDefinition()
     {
@@ -87,16 +92,11 @@ public class Parser
         Token identifier = Match(TokenType.Identifier);
         string name = identifier.Value!.ToString();
 
-        if (scope.ContainsKey(name))
-        {
-            throw new Exception($"SyntaxError: {name} is already declared in the scope");
-        }
-
         Match(TokenType.Assign);
         decimal value = ParseExpression();
         Match(TokenType.Semicolon);
 
-        scope[name] = value;
+        context.DefineVariable(name, value);
     }
 
     private void ParsePrintStatement()
@@ -104,7 +104,8 @@ public class Parser
         tokens.Advance();
         decimal value = ParseExpression();
         Match(TokenType.Semicolon);
-        evaluated.Add(value);
+
+        environment.PrintDecimal(value);
     }
 
     private decimal ParseExpression() => ParseAdditive();
@@ -216,9 +217,7 @@ public class Parser
                     return ParseFunctionCall(name);
                 }
 
-                return scope.TryGetValue(token.Value!.ToString()!, out decimal val) ? val : throw new Exception(
-                    $"Trying to access undeclared variable ${token.Value!}"
-                );
+                return context.GetValue(token.Value!.ToString());
 
             case TokenType.LeftParen:
                 tokens.Advance();
@@ -253,7 +252,7 @@ public class Parser
 
         return name switch
         {
-            "input" => decimal.Parse(Console.ReadLine() ?? throw new Exception("Could not parse decimal from stdin")),
+            "input" => environment.ReadDecimal() ?? throw new ArgumentException("Couldn't read decimal from stdin"),
             "abs" => (decimal)Math.Abs((double)args[0]),
             "pow" => (decimal)Math.Pow((double)args[0], (double)args[1]),
             "max" => (decimal)Math.Max((double)args[0], (double)args[1]),
