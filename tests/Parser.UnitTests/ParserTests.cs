@@ -30,6 +30,42 @@ public class ParserTests
         }
     }
 
+    [Theory]
+    [MemberData(nameof(GetExampleProgramsWithErrors))]
+    public void Can_interpret_invalid_programs(string source, Type exception)
+    {
+        Exception ex = Assert.Throws(exception, () => new Parser(source).ParseStatements());
+        Assert.Equal(exception, ex.GetType());
+    }
+
+    public static TheoryData<string, Type> GetExampleProgramsWithErrors()
+    {
+        // fn, let, print, input, return
+        return new TheoryData<string, Type>
+        {
+            {
+                "let fn = 0;",
+                typeof(UnexpectedLexemeException)
+            },
+            {
+                "let let = 0;",
+                typeof(UnexpectedLexemeException)
+            },
+            {
+                "let print = 0;",
+                typeof(UnexpectedLexemeException)
+            },
+            {
+                "let input = 0;",
+                typeof(UnexpectedLexemeException)
+            },
+            {
+                "let return = 0;",
+                typeof(UnexpectedLexemeException)
+            },
+        };
+    }
+
     public static TheoryData<string, List<decimal>> GetExamplePrograms()
     {
         return new TheoryData<string, List<decimal>>

@@ -77,8 +77,8 @@ public class Parser
     }
 
     /// <summary>
-    /// variable_definition =
-    /// "let", identifier, ["=", expression] ;.
+    /// assignment_statement =
+    /// identifier, "=", expression ;
     /// </summary>
     private void ParseVariableDefinition()
     {
