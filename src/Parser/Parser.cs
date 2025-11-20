@@ -210,6 +210,10 @@ public class Parser
                 tokens.Advance();
                 return token.Value!.ToDecimal();
 
+            case TokenType.Input:
+                tokens.Advance();
+                return ParseFunctionCall("input");
+
             case TokenType.Identifier:
                 string name = tokens.Advance().Value!.ToString();
                 if (tokens.Peek().Type == TokenType.LeftParen)

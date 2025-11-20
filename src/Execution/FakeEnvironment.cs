@@ -4,23 +4,32 @@ public class FakeEnvironment : IEnvironment
 {
     private readonly List<decimal> evaluated = new List<decimal>();
 
-    public decimal InputDecimal { get; set; }
+    private int inputIndex = 0;
 
-    public decimal OutputDecimal { get; private set; }
+    private List<decimal> programInput = new List<decimal>();
 
     public decimal? ReadDecimal()
     {
-        return InputDecimal;
+        if (inputIndex >= programInput.Count)
+        {
+            return null;
+        }
+
+        return programInput[inputIndex++];
     }
 
     public void PrintDecimal(decimal result)
     {
         evaluated.Add(result);
-        OutputDecimal = result;
     }
 
     public List<decimal> GetEvaluated()
     {
         return evaluated;
+    }
+
+    public void SetProgramInput(List<decimal> input)
+    {
+        programInput = input;
     }
 }
