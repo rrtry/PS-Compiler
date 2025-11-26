@@ -141,6 +141,5 @@ return_statement =
 ```
 a + b
 (a - 3) * 2
-"Hello, " + name
 ```
 
