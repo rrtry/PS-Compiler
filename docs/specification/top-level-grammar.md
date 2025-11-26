@@ -119,8 +119,8 @@ print_arguments =
 
 ```
 input(a); 
-input(b);                   // ввод
-print(a + b);       // вывод
+input(b);                  
+print(a + b);
 ```
 
 ### Возврат из функции
