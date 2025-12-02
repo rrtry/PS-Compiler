@@ -35,6 +35,56 @@ public class InterpreterTests
         return new TheoryData<string, Tuple<List<decimal>, List<decimal>>>
         {
             {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = x != y;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 2 },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = x == y;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 1 },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = x != y && x == 0;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 2 },
+                    new List<decimal> { 0 }
+                )
+            },
+            {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = x != y || x == 0;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 2 },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = (x != y) || (x == 0);" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 2 },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
                 "let x = input(); " +
                 "let y = input(); " +
                 "print(x + y);",

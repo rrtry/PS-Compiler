@@ -137,8 +137,7 @@ public class Lexer
                     return new Token(TokenType.OrOr);
                 }
 
-                // Пока возвращаем ошибку
-                return new Token(TokenType.Unknown);
+                return new Token(TokenType.Or);
             case '&':
                 scanner.Advance();
                 if (scanner.Peek() == '&')
@@ -147,8 +146,7 @@ public class Lexer
                     return new Token(TokenType.AndAnd);
                 }
 
-                // Пока возвращаем ошибку
-                return new Token(TokenType.Unknown);
+                return new Token(TokenType.And);
             case '!':
                 scanner.Advance();
                 if (scanner.Peek() == '=')
@@ -227,6 +225,9 @@ public class Lexer
             case ')':
                 scanner.Advance();
                 return new Token(TokenType.RightParen);
+            case '~':
+                scanner.Advance();
+                return new Token(TokenType.BinNot);
         }
 
         return ParseIdentifierOrKeyword();

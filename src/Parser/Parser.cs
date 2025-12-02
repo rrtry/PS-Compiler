@@ -66,6 +66,98 @@ public class Parser
     }
 
     /// <summary>
+    /// expression = logical_or ;.
+    /// </summary>
+    private decimal ParseExpression() => ParseLogicalOr();
+
+    /// <summary>
+    /// (* Логическое ИЛИ *)
+    /// logical_or = logical_and, { "||", logical_and } ;.
+    /// </summary>
+    private decimal ParseLogicalOr()
+    {
+        decimal left = ParseLogicalAnd();
+        while (tokens.Peek().Type == TokenType.OrOr)
+        {
+            Token op = tokens.Advance();
+            decimal right = ParseLogicalAnd();
+            left = (long)left != 0L || (long)right != 0L ? 1 : 0;
+        }
+
+        return left;
+    }
+
+    /// <summary>
+    /// (* Логическое И *)
+    /// logical_and = equality, { "&&", equality } ;.
+    /// </summary>
+    private decimal ParseLogicalAnd()
+    {
+        decimal left = ParseEquality();
+        while (tokens.Peek().Type == TokenType.AndAnd)
+        {
+            decimal right = ParseEquality();
+            left = (long)left != 0L && (long)right != 0L ? 1 : 0;
+        }
+
+        return left;
+    }
+
+    /// <summary>
+    /// (* Равенство *)
+    /// equality = relational, { ("==" | "!="), relational } ;.
+    /// </summary>
+    private decimal ParseEquality()
+    {
+        decimal left = ParseRelational();
+        if (tokens.Peek().Type == TokenType.EqualEqual ||
+            tokens.Peek().Type == TokenType.NotEqual)
+        {
+            Token op = tokens.Advance();
+            decimal right = ParseRelational();
+            left = op.Type == TokenType.EqualEqual ?
+                   ((long)left == (long)right ? 1 : 0) :
+                   ((long)left != (long)right ? 1 : 0);
+        }
+
+        return left;
+    }
+
+    /// <summary>
+    /// (* Сравнение *)
+    /// additive, { ("<" | ">" | "<=" | ">="), additive }.
+    /// </summary>
+    private decimal ParseRelational()
+    {
+        decimal left = ParseAdditive();
+        if (tokens.Peek().Type == TokenType.Less ||
+            tokens.Peek().Type == TokenType.Greater ||
+            tokens.Peek().Type == TokenType.LessEqual ||
+            tokens.Peek().Type == TokenType.GreaterEqual)
+        {
+            Token op = tokens.Advance();
+            decimal right = ParseAdditive();
+            switch (op.Type)
+            {
+                case TokenType.Less:
+                    left = left < right ? 1 : 0;
+                    break;
+                case TokenType.Greater:
+                    left = left > right ? 1 : 0;
+                    break;
+                case TokenType.LessEqual:
+                    left = left <= right ? 1 : 0;
+                    break;
+                case TokenType.GreaterEqual:
+                    left = left >= right ? 1 : 0;
+                    break;
+            }
+        }
+
+        return left;
+    }
+
+    /// <summary>
     /// variable_declaration =
     /// "let", identifier, ["=", expression] ;.
     /// </summary>
@@ -107,8 +199,6 @@ public class Parser
 
         environment.PrintDecimal(value);
     }
-
-    private decimal ParseExpression() => ParseAdditive();
 
     /// <summary>
     /// additive = multiplicative, { ("+" | "-"), multiplicative } ;.
@@ -224,9 +314,15 @@ public class Parser
                 return context.GetValue(token.Value!.ToString());
 
             case TokenType.LeftParen:
+            case TokenType.AndAnd:
+            case TokenType.OrOr:
                 tokens.Advance();
                 decimal expr = ParseExpression();
-                Match(TokenType.RightParen);
+                if (token.Type == TokenType.LeftParen)
+                {
+                    Match(TokenType.RightParen);
+                }
+
                 return expr;
 
             default:
