@@ -1,11 +1,32 @@
 namespace Execution;
 
+using Ast.Declarations;
+
 /// <summary>
 /// Контекст выполнения программы (все переменные, константы и другие символы).
 /// </summary>
 public class Context
 {
     private readonly Stack<Scope> scopes = [];
+    private readonly Dictionary<string, FunctionDeclaration> functions = [];
+
+    public FunctionDeclaration GetFunction(string name)
+    {
+        if (functions.TryGetValue(name, out FunctionDeclaration? function))
+        {
+            return function;
+        }
+
+        throw new ArgumentException($"Function '{name}' is not defined");
+    }
+
+    public void DefineFunction(FunctionDeclaration function)
+    {
+        if (!functions.TryAdd(function.Name, function))
+        {
+            throw new ArgumentException($"Function '{function.Name}' is already defined");
+        }
+    }
 
     public void PushScope(Scope scope)
     {
