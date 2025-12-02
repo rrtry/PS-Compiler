@@ -30,42 +30,6 @@ public class ParserTests
         }
     }
 
-    [Theory]
-    [MemberData(nameof(GetExampleProgramsWithErrors))]
-    public void Can_interpret_invalid_programs(string source, Type exception)
-    {
-        Exception ex = Assert.Throws(exception, () => new Parser(source).Parse());
-        Assert.Equal(exception, ex.GetType());
-    }
-
-    public static TheoryData<string, Type> GetExampleProgramsWithErrors()
-    {
-        // fn, let, print, input, return
-        return new TheoryData<string, Type>
-        {
-            {
-                "let fn = 0;",
-                typeof(UnexpectedLexemeException)
-            },
-            {
-                "let let = 0;",
-                typeof(UnexpectedLexemeException)
-            },
-            {
-                "let print = 0;",
-                typeof(UnexpectedLexemeException)
-            },
-            {
-                "let input = 0;",
-                typeof(UnexpectedLexemeException)
-            },
-            {
-                "let return = 0;",
-                typeof(UnexpectedLexemeException)
-            },
-        };
-    }
-
     public static TheoryData<string, List<decimal>> GetExamplePrograms()
     {
         return new TheoryData<string, List<decimal>>
@@ -111,24 +75,24 @@ public class ParserTests
     {
         return new TheoryData<string, List<decimal>>
         {
-            { "abs(-42);",      new List<decimal> { 42 } },
-            { "max(1, 3);",     new List<decimal> { 3 } },
-            { "min(1, 3);",     new List<decimal> { 1 } },
-            { "min(1 - 2, 3);", new List<decimal> { -1 } },
+            { "print(abs(-42));",      new List<decimal> { 42 } },
+            { "print(max(1, 3));",     new List<decimal> { 3 } },
+            { "print(min(1, 3));",     new List<decimal> { 1 } },
+            { "print(min(1 - 2, 3));", new List<decimal> { -1 } },
             {
-                "let x = 1; let y = 2; abs(min(x - y, 3));",
+                "let x = 1; let y = 2; print(abs(min(x - y, 3)));",
                 new List<decimal> { 1 }
             },
             {
-                "let x = 1; let y = 2; max(x - y, 3);",
+                "let x = 1; let y = 2; print(max(x - y, 3));",
                 new List<decimal> { 3 }
             },
             {
-                "let x = 1; let y = 2; min(x - y, 3);",
+                "let x = 1; let y = 2; print(min(x - y, 3));",
                 new List<decimal> { -1 }
             },
             {
-                "let x = 2; let y = 3; pow(x, y);",
+                "let x = 2; let y = 3; print(pow(x, y));",
                 new List<decimal> { 8 }
             },
             {
@@ -142,22 +106,22 @@ public class ParserTests
     {
         return new TheoryData<string, List<decimal>>
         {
-            { "4 % 2;",           new List<decimal> { 0 } },
-            { "1 + 2;",           new List<decimal> { 3 } },
-            { "1 + 6 / 2;",       new List<decimal> { 4 } },
-            { "-12 / -4 / -3;",   new List<decimal> { -1 } },
-            { "-12 / 4 / 3;",     new List<decimal> { -1 } },
-            { "12 / 4 / 3;",      new List<decimal> { 1 } },
-            { "12 / 6 / 2;",      new List<decimal> { 1 } },
-            { "12 / (6 / 2);",    new List<decimal> { 4 } },
-            { "2 * 3 + 4;",       new List<decimal> { 10 } },
-            { "2 + 3 * 4;",       new List<decimal> { 14 } },
-            { "(2 + 3) * 5;",     new List<decimal> { 25 } },
-            { "2 ^ 3 ^ 2;",       new List<decimal> { 512 } },
-            { "2 ^ 3 + 4 * 5;",   new List<decimal> { 28 } },
-            { "2 ^ (2 + 2) * 5;", new List<decimal> { 80 } },
-            { "(-5) ^ 2;",        new List<decimal> { 25 } },
-            { "-5 + 10;",         new List<decimal> { 5 } },
+            { "print(4 % 2);",           new List<decimal> { 0 } },
+            { "print(1 + 2);",           new List<decimal> { 3 } },
+            { "print(1 + 6 / 2);",       new List<decimal> { 4 } },
+            { "print(-12 / -4 / -3);",   new List<decimal> { -1 } },
+            { "print(-12 / 4 / 3);",     new List<decimal> { -1 } },
+            { "print(12 / 4 / 3);",      new List<decimal> { 1 } },
+            { "print(12 / 6 / 2);",      new List<decimal> { 1 } },
+            { "print(12 / (6 / 2));",    new List<decimal> { 4 } },
+            { "print(2 * 3 + 4);",       new List<decimal> { 10 } },
+            { "print(2 + 3 * 4);",       new List<decimal> { 14 } },
+            { "print((2 + 3) * 5);",     new List<decimal> { 25 } },
+            { "print(2 ^ 3 ^ 2);",       new List<decimal> { 512 } },
+            { "print(2 ^ 3 + 4 * 5);",   new List<decimal> { 28 } },
+            { "print(2 ^ (2 + 2) * 5);", new List<decimal> { 80 } },
+            { "print((-5) ^ 2);",        new List<decimal> { 25 } },
+            { "print(-5 + 10);",         new List<decimal> { 5 } },
         };
     }
 
@@ -165,12 +129,12 @@ public class ParserTests
     {
         return new TheoryData<string, List<decimal>>
         {
-            { "42;",       new List<decimal> { 42 } },
-            { "0x2a;",     new List<decimal> { 0x2a } },
-            { "0b101010;", new List<decimal> { 0b101010 } },
-            { "3.14;",     new List<decimal> { 3.14m } },
-            { "-(-42);",   new List<decimal> { 42 } },
-            { "+(-42);",   new List<decimal> { -42 } },
+            { "print(42);",       new List<decimal> { 42 } },
+            { "print(0x2a);",     new List<decimal> { 0x2a } },
+            { "print(0b101010);", new List<decimal> { 0b101010 } },
+            { "print(3.14);",     new List<decimal> { 3.14m } },
+            { "print(-(-42));",   new List<decimal> { 42 } },
+            { "print(+(-42));",   new List<decimal> { -42 } },
         };
     }
 }

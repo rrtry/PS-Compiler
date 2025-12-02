@@ -35,6 +35,46 @@ public class InterpreterTests
         return new TheoryData<string, Tuple<List<decimal>, List<decimal>>>
         {
             {
+                "let x = 1;" +
+                "let y = 2;" +
+                "let z = y > x;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
+                "let x = 1;" +
+                "let y = 2;" +
+                "let z = y < x;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 0 }
+                )
+            },
+            {
+                "let x = 1;" +
+                "let y = 2;" +
+                "let z = y <= x;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 0 }
+                )
+            },
+            {
+                "let x = 1;" +
+                "let y = 2;" +
+                "let z = y >= x;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
                 "let x = input();" +
                 "let y = input();" +
                 "let z = x != y;" +

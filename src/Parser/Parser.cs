@@ -38,31 +38,8 @@ public class Parser
 
     private void ParseStatement()
     {
-        Token t = tokens.Peek();
-        switch (t.Type)
-        {
-            case TokenType.Let:
-                ParseVariableDefinition();
-                break;
-
-            case TokenType.Print:
-                ParsePrintStatement();
-                break;
-
-            default:
-                if (t.Type == TokenType.Identifier && tokens.Peek(1).Type == TokenType.Assign)
-                {
-                    ParseVariableAssignment();
-                    break;
-                }
-                else
-                {
-                    decimal value = ParseExpression();
-                    Match(TokenType.Semicolon);
-                    environment.PrintDecimal(value);
-                    break;
-                }
-        }
+        ParseExpression();
+        Match(TokenType.Semicolon);
     }
 
     /// <summary>
@@ -168,8 +145,6 @@ public class Parser
 
         Match(TokenType.Assign);
         decimal value = ParseExpression();
-        Match(TokenType.Semicolon);
-
         context.AssignVariable(name, value);
     }
 
@@ -186,8 +161,6 @@ public class Parser
 
         Match(TokenType.Assign);
         decimal value = ParseExpression();
-        Match(TokenType.Semicolon);
-
         context.DefineVariable(name, value);
     }
 
@@ -195,8 +168,6 @@ public class Parser
     {
         tokens.Advance();
         decimal value = ParseExpression();
-        Match(TokenType.Semicolon);
-
         environment.PrintDecimal(value);
     }
 
@@ -295,6 +266,14 @@ public class Parser
         Token token = tokens.Peek();
         switch (token.Type)
         {
+            case TokenType.Let:
+                ParseVariableDefinition();
+                break;
+
+            case TokenType.Print:
+                ParsePrintStatement();
+                break;
+
             case TokenType.IntegerLiteral:
             case TokenType.FloatLiteral:
                 tokens.Advance();
@@ -305,13 +284,21 @@ public class Parser
                 return ParseFunctionCall("input");
 
             case TokenType.Identifier:
-                string name = tokens.Advance().Value!.ToString();
-                if (tokens.Peek().Type == TokenType.LeftParen)
+                if (tokens.Peek(1).Type == TokenType.Assign)
                 {
-                    return ParseFunctionCall(name);
+                    ParseVariableAssignment();
+                    break;
                 }
+                else
+                {
+                    string name = tokens.Advance().Value!.ToString();
+                    if (tokens.Peek().Type == TokenType.LeftParen)
+                    {
+                        return ParseFunctionCall(name);
+                    }
 
-                return context.GetValue(token.Value!.ToString());
+                    return context.GetValue(token.Value!.ToString());
+                }
 
             case TokenType.LeftParen:
             case TokenType.AndAnd:
@@ -328,6 +315,8 @@ public class Parser
             default:
                 throw new Exception($"Unexpected token {token.Type}");
         }
+
+        return decimal.Zero; // Zero for instructions and variable assignment
     }
 
     /// <summary>
