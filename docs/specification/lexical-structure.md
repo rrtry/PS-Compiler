@@ -5,8 +5,8 @@
 ```
 fn main() 
 {
-let a;
-let b;
+let a: int;
+let b: int;
 input(a);
 input(b);
 let sum = a + b;

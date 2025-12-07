@@ -57,7 +57,7 @@ fn is_prime(n: int): int
 
 fn main()
  {
-    let n;
+    let n: int;
     input(n);
     let result = is_prime(n);
     print(result);
