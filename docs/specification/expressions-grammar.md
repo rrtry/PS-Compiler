@@ -92,7 +92,7 @@ additive       = multiplicative, { ("+" | "-"), multiplicative } ;
 multiplicative = unary, { ("*" | "/" | "%"), unary } ;
 
 (* Унарные операции *)
-unary          = { ("+" | "-" | "!" ) }, power ;
+unary = { ( "+" | "-" | "!" | "++" | "--" ) } , power ;
 
 (* Постфиксные ++/-- и возведение в степень (правоассоциативно) *)
 power          = postfix, { ("^" | "**"), power } ;
