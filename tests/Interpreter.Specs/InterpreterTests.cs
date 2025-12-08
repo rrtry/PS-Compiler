@@ -11,8 +11,8 @@ public class InterpreterTests
         List<decimal> programInput = tuple.Item1;
         List<decimal> expectedOutput = tuple.Item2;
 
-        Context context = new Context();
         FakeEnvironment environment = new FakeEnvironment();
+        Context context = new Context(environment);
         environment.SetProgramInput(programInput);
 
         List<decimal> evaluated = environment.GetEvaluated();
@@ -113,7 +113,7 @@ public class InterpreterTests
                     new List<decimal> { 1, 2 },
                     new List<decimal> { 1 }
                 )
-            },
+            }, 
             {
                 "let x = input();" +
                 "let y = input();" +

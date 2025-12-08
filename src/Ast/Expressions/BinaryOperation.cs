@@ -18,9 +18,19 @@ public enum BinaryOperation
     Multiply,
 
     /// <summary>
+    /// Возведение числа в степень.
+    /// </summary>
+    Power,
+
+    /// <summary>
     /// Деление чисел.
     /// </summary>
     Divide,
+
+    /// <summary>
+    /// Остаток от деления чисел.
+    /// </summary>
+    Modulo,
 
     /// <summary>
     /// Логическое "ИЛИ".

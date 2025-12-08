@@ -25,5 +25,5 @@ public interface IAstVisitor
 
     public void Visit(VariableDeclaration d);
 
-    public void Visit(FunctionDeclaration d);
+    public void Visit(AbstractFunctionDeclaration d);
 }
