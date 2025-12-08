@@ -3,6 +3,7 @@ namespace Execution;
 using Ast;
 using Ast.Declarations;
 using Ast.Expressions;
+using Ast.Statements;
 
 public class AstEvaluator : IAstVisitor
 {
@@ -173,38 +174,51 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(AssignmentExpression e)
     {
-        // NOTE: Вычисляем выражение, и затем присваиваем его значение переменной,
-        //  сохраняя результат в стеке.
         e.Value.Accept(this);
         decimal value = values.Peek();
         context.AssignVariable(e.Name, value);
     }
 
-    public void Visit(SequenceExpression e)
+    public void Visit(BlockStatement s)
     {
-        // NOTE: Вычисляем все выражения последовательно, но сохраняем только последний результат.
-        values.Push(0);
-        foreach (Expression nested in e.Sequence)
+        values.Push(0m);
+        context.PushScope(new Scope());
+
+        try
         {
-            values.Pop();
-            nested.Accept(this);
+            foreach (AstNode node in s.Statements)
+            {
+                values.Pop();
+                node.Accept(this);
+            }
+        }
+        finally
+        {
+            context.PopScope();
         }
     }
 
-    public void Visit(IfElseExpression e)
+    public void Visit(IfElseStatement s)
     {
-        e.Condition.Accept(this);
+        s.Condition.Accept(this);
 
         decimal conditionValue = values.Pop();
         bool isTrueCondition = !Numbers.AreEqual(0.0m, conditionValue);
 
         if (isTrueCondition)
         {
-            e.ThenBranch.Accept(this);
+            s.ThenBranch.Accept(this);
         }
         else
         {
-            e.ElseBranch.Accept(this);
+            if (s.ElseBranch != null)
+            {
+                s.ElseBranch.Accept(this);
+            }
+            else
+            {
+                values.Push(0m);
+            }
         }
     }
 
@@ -259,8 +273,6 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(VariableDeclaration d)
     {
-        // NOTE: Вычисляем инициализирующее выражение, и затем присваиваем его значение переменной,
-        //  сохраняя результат в стеке.
         decimal value = 0;
         if (d.Value != null)
         {
@@ -274,8 +286,16 @@ public class AstEvaluator : IAstVisitor
     public void Visit(AbstractFunctionDeclaration d)
     {
         context.DefineFunction(d);
-
-        // NOTE: Результат «вычисления» объявления функции — число 0.0.
         values.Push(0m);
+    }
+
+    public void Visit(SequenceExpression e)
+    {
+        throw new NotImplementedException();
+    }
+
+    public void Visit(IfElseExpression e)
+    {
+        throw new NotImplementedException();
     }
 }

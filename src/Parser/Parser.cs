@@ -5,6 +5,7 @@ using Execution;
 using Ast;
 using Ast.Expressions;
 using Ast.Declarations;
+using Ast.Statements;
 
 /// <summary>
 /// Грамматика описана в файле `docs/specification/expressions-grammar.md`.
@@ -38,8 +39,7 @@ public class Parser
         while (tokens.Peek().Type != TokenType.Eof)
         {
             AstNode node = ParseStatement();
-            decimal value = evaluator.Evaluate(node);
-            Match(TokenType.Semicolon);
+            evaluator.Evaluate(node);
         }
 
         return environment.GetEvaluated();
@@ -54,10 +54,16 @@ public class Parser
         {
             case TokenType.Let:
                 evaluated = ParseVariableDefinition();
+                Match(TokenType.Semicolon);
                 break;
 
             case TokenType.Print:
                 evaluated = ParsePrintStatement();
+                Match(TokenType.Semicolon);
+                break;
+
+            case TokenType.If:
+                evaluated = ParseIfStatement();
                 break;
 
             default:
@@ -70,10 +76,46 @@ public class Parser
                     evaluated = ParseExpression();
                 }
 
+                Match(TokenType.Semicolon);
                 break;
         }
 
         return evaluated;
+    }
+
+    private IfElseStatement ParseIfStatement()
+    {
+        Match(TokenType.If);
+
+        Match(TokenType.LeftParen);
+        Expression condition = ParseExpression();
+        Match(TokenType.RightParen);
+
+        BlockStatement thenBlock = ParseBlock();
+        BlockStatement? elseBlock = null;
+
+        if (MatchOptional(TokenType.Else))
+        {
+            elseBlock = ParseBlock();
+        }
+
+        return new IfElseStatement(condition, thenBlock, elseBlock);
+    }
+
+    private BlockStatement ParseBlock()
+    {
+        Match(TokenType.LeftBrace);
+        List<AstNode> statements = [];
+
+        while (tokens.Peek().Type != TokenType.RightBrace &&
+               tokens.Peek().Type != TokenType.Eof)
+        {
+            AstNode stmt = ParseStatement();
+            statements.Add(stmt);
+        }
+
+        Match(TokenType.RightBrace);
+        return new BlockStatement(statements);
     }
 
     /// <summary>

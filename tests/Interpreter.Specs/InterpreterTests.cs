@@ -35,6 +35,118 @@ public class InterpreterTests
         return new TheoryData<string, Tuple<List<decimal>, List<decimal>>>
         {
             {
+                @"let x = 4;
+                  let y = 2;
+                  if (pow(x, 0.5) == y) {
+                      let z = 2;
+                      print((x + y) * z);
+                  } else {
+                    print(x - y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 12 }
+                )
+            },
+            {
+                @"let x = 6;
+                  let y = 2;
+                  if ((x + y) == 8 && pow(2, 3) == 8) {
+                      print(x + y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 8 }
+                )
+            },
+            {
+                @"let x = 6;
+                  let y = 2;
+                  if ((x + y) == 8 || (x - y) == 2) {
+                      print(x + y);
+                  } else {
+                    print(x - y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 8 }
+                )
+            },
+            {
+                @"let x = 2;
+                  let y = 2;
+                  if (x == y) {
+                      print(x + y);
+                  } else {
+                      print(x - y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 4 }
+                )
+            },
+            {
+                @"let x = 2;
+                  let y = 2;
+                  if (x != y) {
+                      print(x + y);
+                  } else {
+                      print(x - y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 0 }
+                )
+            },
+            {
+                @"let x = 1;
+                  let y = 2;
+                  if (x < y) {
+                      print(x + y);
+                  } else {
+                      print(x - y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 3 }
+                )
+            },
+            {
+                @"let x = 1;
+                  let y = 2;
+                  if (x > y) {
+                      print(x + y);
+                  } else {
+                      print(x - y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { -1 }
+                )
+            },
+            {
+                @"let x = 2;
+                  let y = 1;
+                  if (x > y) {
+                      print(x + y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 3 }
+                )
+            },
+            {
+                @"let x = 2;
+                  let y = 1;
+                  if (x < y) {
+                      print(x + y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { }
+                )
+            },
+            {
                 "let x = 1;" +
                 "let y = 2;" +
                 "let z = y > x;" +

@@ -1,5 +1,6 @@
 using Ast.Declarations;
 using Ast.Expressions;
+using Ast.Statements;
 
 namespace Ast;
 
@@ -26,4 +27,8 @@ public interface IAstVisitor
     public void Visit(VariableDeclaration d);
 
     public void Visit(AbstractFunctionDeclaration d);
+
+    public void Visit(IfElseStatement s);
+
+    public void Visit(BlockStatement s);
 }
