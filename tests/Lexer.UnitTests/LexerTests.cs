@@ -38,6 +38,28 @@ public class LexerTests
         return new TheoryData<string, List<Token>>
         {
             {
+                "let b = ~255 | 1", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, new TokenValue("b")),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.BinNot),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(255)),
+                    new Token(TokenType.Or),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(1))
+                ]
+            },
+            {
+                "let b = ~255 & 1", [
+                    new Token(TokenType.Let),
+                    new Token(TokenType.Identifier, new TokenValue("b")),
+                    new Token(TokenType.Assign),
+                    new Token(TokenType.BinNot),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(255)),
+                    new Token(TokenType.And),
+                    new Token(TokenType.IntegerLiteral, new TokenValue(1))
+                ]
+            },
+            {
                 "let i = input();", [
                     new Token(TokenType.Let),
                     new Token(TokenType.Identifier, new TokenValue("i")),

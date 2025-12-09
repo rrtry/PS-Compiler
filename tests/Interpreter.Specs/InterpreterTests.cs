@@ -11,8 +11,8 @@ public class InterpreterTests
         List<decimal> programInput = tuple.Item1;
         List<decimal> expectedOutput = tuple.Item2;
 
-        Context context = new Context();
         FakeEnvironment environment = new FakeEnvironment();
+        Context context = new Context(environment);
         environment.SetProgramInput(programInput);
 
         List<decimal> evaluated = environment.GetEvaluated();
@@ -34,6 +34,96 @@ public class InterpreterTests
     {
         return new TheoryData<string, Tuple<List<decimal>, List<decimal>>>
         {
+            {
+                "let x = 1;" +
+                "let y = 2;" +
+                "let z = y > x;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
+                "let x = 1;" +
+                "let y = 2;" +
+                "let z = y < x;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 0 }
+                )
+            },
+            {
+                "let x = 1;" +
+                "let y = 2;" +
+                "let z = y <= x;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 0 }
+                )
+            },
+            {
+                "let x = 1;" +
+                "let y = 2;" +
+                "let z = y >= x;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = x != y;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 2 },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = x == y;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 1 },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = x != y && x == 0;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 2 },
+                    new List<decimal> { 0 }
+                )
+            },
+            {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = x != y || x == 0;" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 2 },
+                    new List<decimal> { 1 }
+                )
+            }, 
+            {
+                "let x = input();" +
+                "let y = input();" +
+                "let z = (x != y) || (x == 0);" +
+                "print(z);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 1, 2 },
+                    new List<decimal> { 1 }
+                )
+            },
             {
                 "let x = input(); " +
                 "let y = input(); " +

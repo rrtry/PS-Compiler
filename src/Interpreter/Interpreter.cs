@@ -10,8 +10,8 @@ public class Interpreter
 
     public Interpreter()
     {
-        context = new Context();
         environment = new ConsoleEnvironment();
+        context = new Context(environment);
     }
 
     public Interpreter(Context context, IEnvironment environment)
