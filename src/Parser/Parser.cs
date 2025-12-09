@@ -66,16 +66,16 @@ public class Parser
                 evaluated = ParseIfStatement();
                 break;
 
-            default:
-                if (token.Type == TokenType.Identifier && tokens.Peek(1).Type == TokenType.Assign)
-                {
-                    evaluated = ParseVariableAssignment();
-                }
-                else
-                {
-                    evaluated = ParseExpression();
-                }
+            case TokenType.While:
+                evaluated = ParseWhileLoopStatement();
+                break;
 
+            case TokenType.For:
+                evaluated = ParseForLoopStatement();
+                break;
+
+            default:
+                evaluated = ParseExpression();
                 Match(TokenType.Semicolon);
                 break;
         }
@@ -91,18 +91,18 @@ public class Parser
         Expression condition = ParseExpression();
         Match(TokenType.RightParen);
 
-        BlockStatement thenBlock = ParseBlock();
+        BlockStatement thenBlock = ParseBlockStatement();
         BlockStatement? elseBlock = null;
 
         if (MatchOptional(TokenType.Else))
         {
-            elseBlock = ParseBlock();
+            elseBlock = ParseBlockStatement();
         }
 
         return new IfElseStatement(condition, thenBlock, elseBlock);
     }
 
-    private BlockStatement ParseBlock()
+    private BlockStatement ParseBlockStatement()
     {
         Match(TokenType.LeftBrace);
         List<AstNode> statements = [];
@@ -116,6 +116,46 @@ public class Parser
 
         Match(TokenType.RightBrace);
         return new BlockStatement(statements);
+    }
+
+    private WhileLoopStatement ParseWhileLoopStatement()
+    {
+        Match(TokenType.While);
+
+        Match(TokenType.LeftParen);
+        Expression condition = ParseExpression();
+        Match(TokenType.RightParen);
+
+        BlockStatement body = ParseBlockStatement();
+        return new WhileLoopStatement(condition, body);
+    }
+
+    private ForLoopStatement ParseForLoopStatement()
+    {
+        Match(TokenType.For);
+        Match(TokenType.LeftParen);
+        AstNode initialization = ParseStatement();
+
+        if (initialization is not VariableDeclaration and not AssignmentExpression)
+        {
+            throw new Exception("Invalid for loop initialization");
+        }
+
+        string name = initialization switch
+        {
+            VariableDeclaration varDecl => varDecl.Name,
+            AssignmentExpression assignExpr => assignExpr.Name,
+            _ => throw new Exception("Unreachable code")
+        };
+
+        Expression condition = ParseExpression();
+        Match(TokenType.Semicolon);
+
+        Expression increment = ParseExpression();
+        Match(TokenType.RightParen);
+
+        BlockStatement body = ParseBlockStatement();
+        return new ForLoopStatement(name, initialization, condition, increment, body);
     }
 
     /// <summary>
@@ -358,6 +398,12 @@ public class Parser
                 return ParseFunctionCall("input");
 
             case TokenType.Identifier:
+
+                if (tokens.Peek(1).Type == TokenType.Assign)
+                {
+                    return ParseVariableAssignment();
+                }
+
                 string name = tokens.Advance().Value!.ToString();
                 if (tokens.Peek().Type == TokenType.LeftParen)
                 {

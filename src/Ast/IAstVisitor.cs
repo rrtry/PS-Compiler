@@ -24,6 +24,8 @@ public interface IAstVisitor
 
     public void Visit(ForLoopExpression e);
 
+    public void Visit(WhileLoopStatement e);
+
     public void Visit(VariableDeclaration d);
 
     public void Visit(AbstractFunctionDeclaration d);
@@ -31,4 +33,6 @@ public interface IAstVisitor
     public void Visit(IfElseStatement s);
 
     public void Visit(BlockStatement s);
+
+    public void Visit(ForLoopStatement s);
 }

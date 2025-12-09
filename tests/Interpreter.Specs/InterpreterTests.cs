@@ -35,6 +35,55 @@ public class InterpreterTests
         return new TheoryData<string, Tuple<List<decimal>, List<decimal>>>
         {
             {
+                @"let i = 0;
+                  let x = 1;
+                  for (x = 0; x < 5; x = x + 1) {
+                      i = i + 1;
+                  }
+                  print(i);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 5 }
+                )
+            },
+            {
+                @"let x = 0;
+                  for (let j = 0; j < 5; j = j + 1) {
+                      x = x + 1;
+                  }
+                  print(x);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 5 }
+                )
+            },
+            {
+                @"let i = 0;
+                  while (i < 5) {
+                      let temp = i + 1;
+                      i = temp;
+                  }
+                  print(i);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 5 }
+                )
+            },
+            {
+                @"let x = 4;
+                  let y = 2;
+                  if (x + y < x) {
+                      let z = 2;
+                      print((x + y) * z);
+                  } else {
+                    print(x - y);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 2 }
+                )
+            },
+            {
                 @"let x = 4;
                   let y = 2;
                   if (pow(x, 0.5) == y) {

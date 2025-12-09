@@ -188,7 +188,7 @@ public class AstEvaluator : IAstVisitor
         {
             foreach (AstNode node in s.Statements)
             {
-                values.Pop();
+                values.Pop(); // Безопасно, так как Statement всегда возвращает значение.
                 node.Accept(this);
             }
         }
@@ -264,6 +264,81 @@ public class AstEvaluator : IAstVisitor
             // Добавляем в стек значение 0.0, поскольку цикл хоть не возвращает осмысленного значения,
             //  но всё равно является выражением.
             values.Push(0.0m);
+        }
+        finally
+        {
+            context.PopScope();
+        }
+    }
+
+    public void Visit(ForLoopStatement e)
+    {
+        context.PushScope(new Scope());
+        try
+        {
+            // Вычисляем начальное значение переменной-итератора.
+            e.StartValue.Accept(this);
+            decimal iteratorValue = values.Pop();
+
+            // Вычисляем шаг итерации (по умолчанию 1, но может быть переопределён).
+            decimal stepValue = 1;
+            if (e.StepValue != null)
+            {
+                e.StepValue.Accept(this);
+                stepValue = values.Pop();
+            }
+
+            // Определяем переменную-итератор и добавляем в стек вероятное значение цикла
+            context.AssignVariable(e.IteratorName, iteratorValue); // Changed: DefineVariable -> AssignVariable
+            while (true)
+            {
+                // Вычисляем выражение-условие и сравниваем результат с 0.
+                e.EndCondition.Accept(this);
+                decimal endCondition = values.Pop();
+
+                if (Numbers.AreEqual(0m, endCondition))
+                {
+                    break;
+                }
+
+                // Выполняем тело цикла и отбрасываем результат.
+                e.Body.Accept(this);
+                values.Pop();
+
+                // Выполняем инкремент итератора.
+                iteratorValue += stepValue;
+                context.AssignVariable(e.IteratorName, iteratorValue);
+            }
+
+            // Добавляем в стек значение 0.0, поскольку цикл хоть не возвращает осмысленного значения,
+            //  но всё равно является выражением.
+            values.Push(0.0m);
+        }
+        finally
+        {
+            context.PopScope();
+        }
+    }
+
+    public void Visit(WhileLoopStatement e)
+    {
+        values.Push(0m);
+        context.PushScope(new Scope());
+        try
+        {
+            while (true)
+            {
+                e.Condition.Accept(this);
+                decimal condition = values.Pop();
+
+                if (Numbers.AreEqual(0m, condition))
+                {
+                    break;
+                }
+
+                values.Pop();
+                e.LoopBody.Accept(this);
+            }
         }
         finally
         {
