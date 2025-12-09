@@ -8,15 +8,12 @@
 
 fn main() 
 {
-    let a: int;
-    let b: int;
-
-    input(a);
-    input(b);
-
-    let sum = a + b;
-
-    print("sum");
+let a: int;
+let b: int;
+a = int(input());
+b = int(input());
+let sum = a + b;
+print(sum);
 }
 ``` 
 
@@ -32,7 +29,7 @@ fn main()
 - Каждая инструкция завершается точкой с запятой `;`.  
 - Точка входа — функция `main()`. Выполнение программы начинается с неё.  
 - Область видимости переменных ограничена телом функции или блока `{ ... }`.  
-- Пользовательские функции объявляются до main() с обязательным указанием возвращаемого типа; main() не требует указания типа возврата.
+- Пользовательские функции объявляются до `main()` с обязательным указанием возвращаемого типа; `main()` не требует указания типа возврата.
 - Поддерживаются пользовательские функции с параметрами и возвращаемым типом.
 - Ветвления (if-else) и циклы (while, for) реализованы как инструкции.
 - Логические операторы (&&, ||, !) возвращают 1 (true) или 0 (false).
@@ -83,16 +80,17 @@ x + 10;    // Ошибка — выражение ничего не делает
 
 ## 5. Структура программы
 
-Программа состоит из набора определений функций, последнего определения — `main()`.
+Программа состоит из набора определений функций, точкой входа — `main()`.
 
-```
-program = { function_definition } , entry_point ;
-entry_point = "fn" , "main" , "(" , [ parameter_list ] , ")" , block ;
+```ebnf
+
+program          = { function_definition } , entry_point ;
+entry_point      = "fn" , "main" , "(" , [ parameter_list ] , ")" , block ;
 function_definition = "fn" , identifier , "(" , [ parameter_list ] , ")" , ":" , type , block ;
-parameter_list = parameter , { "," , parameter } ;
-parameter = identifier , ":" , type ;
-type = "int" | "float" | "void" ;
-block = "{" , { statement } , "}" ;
+parameter_list   = parameter , { "," , parameter } ;
+parameter        = identifier , ":" , type ;
+type             = "int" | "float" | "string" | "void" ;
+block            = "{" , { statement } , "}" ;
 ```
 
 ## 6. Инструкции
@@ -100,23 +98,29 @@ block = "{" , { statement } , "}" ;
 ```
 statement =
     variable_declaration , ";"
-  | assignment_statement , ";"
-  | function_call , ";"
-  | return_statement , ";"
+  | assignment           , ";"
+  | function_call        , ";"
+  | return_statement     , ";"
   | if_statement
   | while_statement
   | for_statement
-  | "break" , ";"
+  | "break"  , ";"
   | "continue" , ";"
+  ;
 
 ```
 
 ### Объявление переменной
 
-```
-variable_declaration =
-    "let" , identifier , [ ":" , type ] , [ "=" , expression ] ;
+*initializer может быть выражением для числовых типов, или строковым литералом / string-специфичной конструкцией для string.*
 
+```
+variable_declaration = "let" , identifier , [ ":" , type ] , [ "=" , initializer ] ;
+
+initializer =
+      numeric_expression          (* для int/float *)
+    | string_expression           (* для string *)
+    ;
 ```
 
 Создаёт новую переменную. Если указано выражение — оно вычисляется, и результат присваивается переменной.
@@ -125,8 +129,7 @@ variable_declaration =
 ### Присваивание
 
 ```
-assignment_statement =
-    identifier, "=", expression ;
+assignment = identifier , "=" , ( numeric_expression | string_expression ) ;
 ```
 
 Изменяет значение существующей переменной.
@@ -135,28 +138,25 @@ assignment_statement =
 ### Вызов функции
 
 ```
-function_call = 
-identifier, "(", [ argument_list ], ")" ;
+function_call = identifier , "(" , [ argument_list ] , ")" ;
 
-argument_list = 
-expression, { ",", expression } ;
-```
-Вызов функции — `identifier("(" [ arg_list ] ")" )`. 
-`print(...)` и `input(...)` — встроенные функции, реализованные как обычные функции языка (вызов — свободен внутри `main` и других функций).
+argument_list = argument , { "," , argument } ;
 
-Примеры:
+argument =
+      numeric_expression
+    | string_expression;
 
-```
-input(a); 
-input(b);                  
-print(a + b);
 ```
 
 ### Возврат из функции
 
 ```
-return_statement =
-    "return", [ expression ] ;
+return_statement = "return" , [ return_value ] , ";" ;
+
+return_value =
+      numeric_expression          (* для int/float *)
+    | string_expression           (* для string *)
+    ;
 ```
 Все пользовательские функции (кроме void) обязаны иметь return.
 
@@ -164,7 +164,10 @@ return_statement =
 
 ```
 if_statement =
-    "if" , "(" , expression , ")" , block , { "else" , "if" , "(" , expression , ")" , block } , [ "else" , block ] ;
+    "if" , "(" , numeric_expression , ")" , block ,
+    { "else" , "if" , "(" , numeric_expression , ")" , block } ,
+    [ "else" , block ] ;
+
 ```
 Поддерживает цепочки else if.  Висячий else прикрепляется к ближайшему if.
 
@@ -172,16 +175,17 @@ if_statement =
 
 ```
 while_statement =
-    "while" , "(" , expression , ")" , block ;
+    "while" , "(" , numeric_expression , ")" , block ;
 ```
 
 ### Цикл for
 
 ```
 for_statement =
-    "for" , "(" , [ init ] , expression , [ update ] , ")" , block ;
-init = variable_declaration | assignment_statement ;
-update = assignment_statement ;
+    "for" , "(" ,[ init ] , ";" , [ numeric_expression ] , ";" , [ update ] , ")" , block ;
+
+init   = variable_declaration | assignment ;
+update = assignment ;
 ```
 Инициализация ( let i = 0), условие, обновление (i = i + 1 или i++ через постфикс).
 
@@ -195,88 +199,4 @@ a + b
 (a - 3) * 2
 ```
 
-## 8. Полный ebnf программы
-
-```
-ebnf
-
-program = { function_definition } , entry_point ;
-entry_point = "fn" , "main" , "(" , [ parameter_list ] , ")" , block ;
-function_definition = "fn" , identifier , "(" , [ parameter_list ] , ")" , ":" , type , block ;
-parameter_list = parameter , { "," , parameter } ;
-parameter = identifier , ":" , type ;
-type = "int" | "float" | "void" ;
-block = "{" , { statement } , "}" ;
-
-statement =
-    variable_declaration , ";"
-  | assignment_statement , ";"
-  | function_call , ";"
-  | return_statement , ";"
-  | if_statement
-  | while_statement
-  | for_statement
-  | "break" , ";"
-  | "continue" , ";"
-  ;
-
-variable_declaration =
-    "let" , identifier , [ ":" , type ] , [ "=" , expression ] ;
-
-assignment_statement =
-    identifier , "=" , expression ;
-
-function_call = 
-    identifier , "(" , [ argument_list ] , ")" ;
-
-argument_list = 
-    expression , { "," , expression } ;
-
-return_statement =
-    "return" , [ expression ] ;
-
-if_statement =
-    "if" , "(" , expression , ")" , block , { "else" , "if" , "(" , expression , ")" , block } , [ "else" , block ] ;
-
-while_statement =
-    "while" , "(" , expression , ")" , block ;
-
-for_statement =
-    "for" , "(" , [ init ] , expression , [ update ] , ")" , block ;
-init = variable_declaration | assignment_statement ;
-update = assignment_statement ;
-
-expression = logical_or ;
-
-logical_or = logical_and , { "||" , logical_and } ;
-logical_and = equality , { "&&" , equality } ;
-
-equality = relational , { ( "==" | "!=" ) , relational } ;
-relational = additive , { ( "<" | ">" | "<=" | ">=" ) , additive } ;
-
-additive = multiplicative , { ( "+" | "-" ) , multiplicative } ;
-multiplicative = unary , { ( "*" | "/" | "%" ) , unary } ;
-
-unary = { ( "+" | "-" | "!" | "++" | "--" ) } , power ;
-
-power = postfix , { ( "^" | "**" ) , power } ;
-postfix = primary , { "++" | "--" } ;
-
-primary = number
-        | constant
-        | bool_literal
-        | identifier , [ "(" , [ argument_list ] , ")" ]
-        | "(" , expression , ")" ;
-
-bool_literal = "true" | "false" | "null" ;
-constant = "Pi" | "Euler" ;
-number = integer | float ;
-integer = [ "-" ] , digit , { digit } | "0x" , hex_digit , { hex_digit } ;
-float = [ "-" ] , integer , "." , integer ;
-digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
-hex_digit = digit | "A" | "B" | "C" | "D" | "E" | "F" | "a" | "b" | "c" | "d" | "e" | "f" ;
-
-identifier = letter , { letter | digit | "_" } ;
-letter = "A" | "B" | ... | "Z" | "a" | ... | "z" ;
-```
 
