@@ -5,6 +5,8 @@ using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
 
+using Execution.Exceptions;
+
 public class AstEvaluator : IAstVisitor
 {
     private readonly Context context;
@@ -129,47 +131,36 @@ public class AstEvaluator : IAstVisitor
             argument.Accept(this);
         }
 
-        context.PushScope(new Scope());
-        try
+        decimal result = 0m;
+        if (function is NativeFunction)
         {
             List<decimal> args = [];
-            foreach (string name in Enumerable.Reverse(function.Parameters))
+            for (int i = 0; i < function.Parameters.Count; i++)
             {
-                context.DefineVariable(name, values.Pop());
-                args.Add(context.GetValue(name));
+                args.Insert(0, values.Pop());
             }
 
-            decimal result = ((NativeFunction)function).Invoke(Enumerable.Reverse(args).ToList());
-            values.Push(result);
+            result = ((NativeFunction)function).Invoke(args);
         }
-        finally
+        else
         {
-            context.PopScope();
-        }
-
-        /*
-        // NOTE: вычисляем аргументы и временно сохраняем их в стеке.
-        foreach (Expression argument in e.Arguments)
-        {
-            argument.Accept(this);
-        }
-
-        context.PushScope(new Scope());
-        try
-        {
-            // Определяем параметры, извлекая их из стека в обратном порядке.
-            foreach (string name in Enumerable.Reverse(function.Parameters))
+            context.PushScope(new Scope());
+            try
             {
-                context.DefineVariable(name, values.Pop());
-            }
+                foreach (string name in Enumerable.Reverse(function.Parameters))
+                {
+                    context.DefineVariable(name, values.Pop());
+                }
 
-            // Исполняем функцию
-            function.Body.Accept(this);
+                ((FunctionDeclaration)function).Body.Accept(this);
+            }
+            finally
+            {
+                context.PopScope();
+            }
         }
-        finally
-        {
-            context.PopScope();
-        } */
+
+        values.Push(result);
     }
 
     public void Visit(AssignmentExpression e)
@@ -188,7 +179,7 @@ public class AstEvaluator : IAstVisitor
         {
             foreach (AstNode node in s.Statements)
             {
-                values.Pop(); // Безопасно, так как Statement всегда возвращает значение.
+                values.Pop();
                 node.Accept(this);
             }
         }
@@ -222,55 +213,6 @@ public class AstEvaluator : IAstVisitor
         }
     }
 
-    public void Visit(ForLoopExpression e)
-    {
-        context.PushScope(new Scope());
-        try
-        {
-            // Вычисляем начальное значение переменной-итератора.
-            e.StartValue.Accept(this);
-            decimal iteratorValue = values.Pop();
-
-            // Вычисляем шаг итерации (по умолчанию 1, но может быть переопределён).
-            decimal stepValue = 1;
-            if (e.StepValue != null)
-            {
-                e.StepValue.Accept(this);
-                stepValue = values.Pop();
-            }
-
-            // Определяем переменную-итератор и добавляем в стек вероятное значение цикла
-            context.DefineVariable(e.IteratorName, iteratorValue);
-            while (true)
-            {
-                // Вычисляем выражение-условие и сравниваем результат с 0.
-                e.EndCondition.Accept(this);
-                decimal endCondition = values.Pop();
-
-                if (Numbers.AreEqual(0.0m, endCondition))
-                {
-                    break;
-                }
-
-                // Выполняем тело цикла и отбрасываем результат.
-                e.Body.Accept(this);
-                values.Pop();
-
-                // Выполняем инкремент итератора.
-                iteratorValue += stepValue;
-                context.AssignVariable(e.IteratorName, iteratorValue);
-            }
-
-            // Добавляем в стек значение 0.0, поскольку цикл хоть не возвращает осмысленного значения,
-            //  но всё равно является выражением.
-            values.Push(0.0m);
-        }
-        finally
-        {
-            context.PopScope();
-        }
-    }
-
     public void Visit(ForLoopStatement e)
     {
         context.PushScope(new Scope());
@@ -290,6 +232,8 @@ public class AstEvaluator : IAstVisitor
 
             // Определяем переменную-итератор и добавляем в стек вероятное значение цикла
             context.AssignVariable(e.IteratorName, iteratorValue); // Changed: DefineVariable -> AssignVariable
+            values.Push(0.0m);
+
             while (true)
             {
                 // Вычисляем выражение-условие и сравниваем результат с 0.
@@ -301,18 +245,22 @@ public class AstEvaluator : IAstVisitor
                     break;
                 }
 
-                // Выполняем тело цикла и отбрасываем результат.
-                e.Body.Accept(this);
-                values.Pop();
+                try
+                {
+                    values.Pop();
+                    e.Body.Accept(this);
+                }
+                catch (ContinueLoopException)
+                {
+                }
 
                 // Выполняем инкремент итератора.
                 iteratorValue += stepValue;
                 context.AssignVariable(e.IteratorName, iteratorValue);
             }
-
-            // Добавляем в стек значение 0.0, поскольку цикл хоть не возвращает осмысленного значения,
-            //  но всё равно является выражением.
-            values.Push(0.0m);
+        }
+        catch (BreakLoopException)
+        {
         }
         finally
         {
@@ -324,6 +272,7 @@ public class AstEvaluator : IAstVisitor
     {
         values.Push(0m);
         context.PushScope(new Scope());
+
         try
         {
             while (true)
@@ -336,9 +285,18 @@ public class AstEvaluator : IAstVisitor
                     break;
                 }
 
-                values.Pop();
-                e.LoopBody.Accept(this);
+                try
+                {
+                    values.Pop();
+                    e.LoopBody.Accept(this);
+                }
+                catch (ContinueLoopException)
+                {
+                }
             }
+        }
+        catch (BreakLoopException)
+        {
         }
         finally
         {
@@ -360,17 +318,31 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(AbstractFunctionDeclaration d)
     {
-        context.DefineFunction(d);
         values.Push(0m);
+        context.DefineFunction(d);
+    }
+
+    public void Visit(BreakLoopStatement s)
+    {
+        values.Push(0m);
+        throw new BreakLoopException();
+    }
+
+    public void Visit(ContinueLoopStatement s)
+    {
+        values.Push(0m);
+        throw new ContinueLoopException();
+    }
+
+    public void Visit(ForLoopExpression e)
+    {
     }
 
     public void Visit(SequenceExpression e)
     {
-        throw new NotImplementedException();
     }
 
     public void Visit(IfElseExpression e)
     {
-        throw new NotImplementedException();
     }
 }

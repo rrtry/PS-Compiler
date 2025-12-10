@@ -35,6 +35,74 @@ public class InterpreterTests
         return new TheoryData<string, Tuple<List<decimal>, List<decimal>>>
         {
             {
+                @"let x = 0;
+                  for (let j = 0; j < 5; j = j + 1) {
+                      x = x + 1;
+                      if (x == 3) {
+                        continue;
+                      }
+                      print(x);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 1, 2, 4, 5 }
+                )
+            },
+            {
+                @"let x = 0;
+                  for (let j = 0; j < 10; j = j + 1) {
+                      x = x + 1;
+                      if (x == 5) {
+                          break;
+                      }
+                  }
+                  print(x);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 5 }
+                )
+            },
+            {
+                @"let i = 0;
+                  while (i < 10) {
+                      let temp = i + 1;
+                      i = temp;
+                      if (i == 5) {
+                          break;
+                      }
+                  }
+                  print(i);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 5 }
+                )
+            },
+            {
+                @"let i = 0;
+                  while (i < 5) {
+                      i = i + 1;
+                      if (i == 3) {
+                          continue;
+                      }
+                      print(i);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 1, 2, 4, 5 }
+                )
+            },
+            {
+                @"for (let x = 0; x < 5; x = x + 1) {
+                      if (x % 2 == 0 && x != 0) {
+                          print(x);
+                      }
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 2, 4 }
+                )
+            },
+            {
                 @"let i = 0;
                   let x = 1;
                   for (x = 0; x < 5; x = x + 1) {

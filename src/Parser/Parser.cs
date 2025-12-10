@@ -62,6 +62,21 @@ public class Parser
                 Match(TokenType.Semicolon);
                 break;
 
+            case TokenType.Break:
+                tokens.Advance();
+                evaluated = new BreakLoopStatement();
+                Match(TokenType.Semicolon);
+                break;
+
+            case TokenType.Continue:
+                tokens.Advance();
+                evaluated = new ContinueLoopStatement();
+                Match(TokenType.Semicolon);
+                break;
+
+            case TokenType.Return:
+                throw new NotImplementedException("Return statements are not implemented yet.");
+
             case TokenType.If:
                 evaluated = ParseIfStatement();
                 break;
@@ -74,6 +89,10 @@ public class Parser
                 evaluated = ParseForLoopStatement();
                 break;
 
+            case TokenType.Fn:
+                evaluated = ParseFunctionDefinition();
+                break;
+
             default:
                 evaluated = ParseExpression();
                 Match(TokenType.Semicolon);
@@ -81,6 +100,31 @@ public class Parser
         }
 
         return evaluated;
+    }
+
+    private FunctionDeclaration ParseFunctionDefinition()
+    {
+        tokens.Advance();
+
+        Token functionNameToken = Match(TokenType.Identifier);
+        string functionName = functionNameToken.Value!.ToString();
+
+        Match(TokenType.LeftParen);
+        List<string> parameters = [];
+
+        if (tokens.Peek().Type != TokenType.RightParen)
+        {
+            do
+            {
+                Token paramToken = Match(TokenType.Identifier);
+                parameters.Add(paramToken.Value!.ToString());
+            }
+            while (MatchOptional(TokenType.Comma));
+        }
+
+        Match(TokenType.RightParen);
+        BlockStatement body = ParseBlockStatement();
+        return new FunctionDeclaration(functionName, parameters, body);
     }
 
     private IfElseStatement ParseIfStatement()

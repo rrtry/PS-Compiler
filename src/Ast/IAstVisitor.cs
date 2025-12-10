@@ -35,4 +35,8 @@ public interface IAstVisitor
     public void Visit(BlockStatement s);
 
     public void Visit(ForLoopStatement s);
+
+    public void Visit(BreakLoopStatement s);
+
+    public void Visit(ContinueLoopStatement s);
 }

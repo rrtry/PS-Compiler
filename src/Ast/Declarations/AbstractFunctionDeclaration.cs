@@ -1,5 +1,3 @@
-using Ast.Expressions;
-
 namespace Ast.Declarations;
 
 public abstract class AbstractFunctionDeclaration : Declaration
