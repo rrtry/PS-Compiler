@@ -409,7 +409,7 @@ public class Parser
     }
 
     /// <summary>
-    /// unary = [ ("+" | "-") ], primary ;.
+    /// unary = [ ("+" | "-" | "!") ], primary ;.
     /// </summary>
     private Expression ParseUnary()
     {
@@ -422,6 +422,11 @@ public class Parser
         {
             tokens.Advance();
             return new UnaryOperationExpression(UnaryOperation.Minus, ParseUnary());
+        }
+        else if (tokens.Peek().Type == TokenType.Not)
+        {
+            tokens.Advance();
+            return new UnaryOperationExpression(UnaryOperation.Not, ParseUnary());
         }
         else
         {

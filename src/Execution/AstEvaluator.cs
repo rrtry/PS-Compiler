@@ -103,6 +103,9 @@ public class AstEvaluator : IAstVisitor
         e.Operand.Accept(this);
         switch (e.Operation)
         {
+            case UnaryOperation.Not:
+                values.Push(Numbers.AreEqual(0m, values.Pop()) ? 1m : 0m);
+                break;
             case UnaryOperation.Minus:
                 values.Push(-values.Pop());
                 break;

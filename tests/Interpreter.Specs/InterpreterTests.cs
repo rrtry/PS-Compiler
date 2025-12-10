@@ -35,6 +35,21 @@ public class InterpreterTests
         return new TheoryData<string, Tuple<List<decimal>, List<decimal>>>
         {
             {
+                @"fn factorial(n) {
+                    let fact = 1;
+                    for (let i = 1; i <= n; i = i + 1) 
+                    {
+                        fact = fact * i;
+                    }
+                    return fact;
+                }
+                print(factorial(5));",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 120 }
+                )
+            },
+            {
                 @"fn fibonacci(n) {
 
                     let prev1 = 1;
@@ -53,6 +68,16 @@ public class InterpreterTests
                 new Tuple<List<decimal>, List<decimal>>(
                     new List<decimal> { },
                     new List<decimal> { 55 }
+                )
+            },
+            {
+                @"let i = 0;
+                  if (!i) {
+                    print(!i);
+                  }",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 1 }
                 )
             },
             {
