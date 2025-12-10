@@ -75,7 +75,9 @@ public class Parser
                 break;
 
             case TokenType.Return:
-                throw new NotImplementedException("Return statements are not implemented yet.");
+                evaluated = ParseReturnStatement();
+                Match(TokenType.Semicolon);
+                break;
 
             case TokenType.If:
                 evaluated = ParseIfStatement();
@@ -100,6 +102,13 @@ public class Parser
         }
 
         return evaluated;
+    }
+
+    private ReturnStatement ParseReturnStatement()
+    {
+        tokens.Advance();
+        Expression returnExpression = ParseExpression();
+        return new ReturnStatement(returnExpression);
     }
 
     private FunctionDeclaration ParseFunctionDefinition()

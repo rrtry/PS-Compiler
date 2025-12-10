@@ -131,7 +131,7 @@ public class AstEvaluator : IAstVisitor
             argument.Accept(this);
         }
 
-        decimal result = 0m;
+        decimal result;
         if (function is NativeFunction)
         {
             List<decimal> args = [];
@@ -145,6 +145,8 @@ public class AstEvaluator : IAstVisitor
         else
         {
             context.PushScope(new Scope());
+            bool hasReturn = false;
+
             try
             {
                 foreach (string name in Enumerable.Reverse(function.Parameters))
@@ -154,13 +156,27 @@ public class AstEvaluator : IAstVisitor
 
                 ((FunctionDeclaration)function).Body.Accept(this);
             }
+            catch (ReturnException)
+            {
+                hasReturn = true;
+            }
             finally
             {
+                if (!hasReturn)
+                {
+                    throw new InvalidOperationException("Function has to have a return statement in the end");
+                }
+                else
+                {
+                    values.Pop(); // First pop return statement value
+                    result = values.Pop(); // Then the expression we return;
+                }
+
                 context.PopScope();
             }
         }
 
-        values.Push(result);
+        values.Push(result); // Again, push the value return by the function
     }
 
     public void Visit(AssignmentExpression e)
@@ -218,25 +234,14 @@ public class AstEvaluator : IAstVisitor
         context.PushScope(new Scope());
         try
         {
-            // Вычисляем начальное значение переменной-итератора.
             e.StartValue.Accept(this);
             decimal iteratorValue = values.Pop();
 
-            // Вычисляем шаг итерации (по умолчанию 1, но может быть переопределён).
-            decimal stepValue = 1;
-            if (e.StepValue != null)
-            {
-                e.StepValue.Accept(this);
-                stepValue = values.Pop();
-            }
-
-            // Определяем переменную-итератор и добавляем в стек вероятное значение цикла
             context.AssignVariable(e.IteratorName, iteratorValue); // Changed: DefineVariable -> AssignVariable
             values.Push(0.0m);
 
             while (true)
             {
-                // Вычисляем выражение-условие и сравниваем результат с 0.
                 e.EndCondition.Accept(this);
                 decimal endCondition = values.Pop();
 
@@ -254,9 +259,11 @@ public class AstEvaluator : IAstVisitor
                 {
                 }
 
-                // Выполняем инкремент итератора.
+                e.StepValue!.Accept(this);
+                values.Pop();
+                /*
                 iteratorValue += stepValue;
-                context.AssignVariable(e.IteratorName, iteratorValue);
+                context.AssignVariable(e.IteratorName, iteratorValue); */
             }
         }
         catch (BreakLoopException)
@@ -332,6 +339,13 @@ public class AstEvaluator : IAstVisitor
     {
         values.Push(0m);
         throw new ContinueLoopException();
+    }
+
+    public void Visit(ReturnStatement s)
+    {
+        s.ReturnValue.Accept(this);
+        values.Push(0m);
+        throw new ReturnException();
     }
 
     public void Visit(ForLoopExpression e)

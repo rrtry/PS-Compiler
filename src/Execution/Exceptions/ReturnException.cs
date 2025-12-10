@@ -2,12 +2,12 @@ namespace Execution.Exceptions;
 
 #pragma warning disable RCS1194 // Конструкторы исключения не нужны, т.к. это не класс общего назначения.
 /// <summary>
-/// Внутреннее исключение библиотеки, используется для пропуска итерации цикла.
+/// Внутреннее исключение библиотеки, используется для выхода из функции.
 /// </summary>
-internal class ContinueLoopException : Exception
+internal class ReturnException : Exception
 {
-    public ContinueLoopException()
-        : base("Loop continue")
+    public ReturnException()
+        : base("Return statement")
     {
     }
 }
