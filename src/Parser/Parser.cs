@@ -45,6 +45,18 @@ public class Parser
         return environment.GetEvaluated();
     }
 
+    /// <summary>
+    /// statement =
+    /// variable_declaration , ";"
+    /// | assignment_statement , ";"
+    /// | function_call , ";"
+    /// | return_statement , ";"
+    /// | if_statement
+    /// | while_statement
+    /// | for_statement
+    /// | "break" , ";"
+    /// | "continue" , ";".
+    /// </summary>
     private AstNode ParseStatement()
     {
         Token token = tokens.Peek();
@@ -104,6 +116,9 @@ public class Parser
         return evaluated;
     }
 
+    /// <summary>
+    /// return_statement = "return", [ expression ] ;.
+    /// </summary>
     private ReturnStatement ParseReturnStatement()
     {
         tokens.Advance();
@@ -111,6 +126,9 @@ public class Parser
         return new ReturnStatement(returnExpression);
     }
 
+    /// <summary>
+    /// function_definition = "fn" , identifier , "(" , [ parameter_list ] , ")" , ":" , type , block ;.
+    /// </summary>
     private FunctionDeclaration ParseFunctionDefinition()
     {
         tokens.Advance();
@@ -136,6 +154,9 @@ public class Parser
         return new FunctionDeclaration(functionName, parameters, body);
     }
 
+    /// <summary>
+    /// if_statement = "if" , "(" , expression , ")" , block , { "else" , "if" , "(" , expression , ")" , block } , [ "else" , block ] ;.
+    /// </summary>
     private IfElseStatement ParseIfStatement()
     {
         Match(TokenType.If);
@@ -155,6 +176,9 @@ public class Parser
         return new IfElseStatement(condition, thenBlock, elseBlock);
     }
 
+    /// <summary>
+    /// block = "{" , { statement } , "}" ;.
+    /// </summary>
     private BlockStatement ParseBlockStatement()
     {
         Match(TokenType.LeftBrace);
@@ -171,6 +195,9 @@ public class Parser
         return new BlockStatement(statements);
     }
 
+    /// <summary>
+    /// while_statement = "while" , "(" , expression , ")" , block ;.
+    /// </summary>
     private WhileLoopStatement ParseWhileLoopStatement()
     {
         Match(TokenType.While);
@@ -183,6 +210,12 @@ public class Parser
         return new WhileLoopStatement(condition, body);
     }
 
+    /// <summary>
+    /// for_statement =
+    /// "for" , "(" , [ init ] , expression , [ update ] , ")" , block ;
+    /// init = variable_declaration | assignment_statement ;
+    /// update = assignment_statement ;.
+    /// </summary>
     private ForLoopStatement ParseForLoopStatement()
     {
         Match(TokenType.For);

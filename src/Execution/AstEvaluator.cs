@@ -264,9 +264,6 @@ public class AstEvaluator : IAstVisitor
 
                 e.StepValue!.Accept(this);
                 values.Pop();
-                /*
-                iteratorValue += stepValue;
-                context.AssignVariable(e.IteratorName, iteratorValue); */
             }
         }
         catch (BreakLoopException)

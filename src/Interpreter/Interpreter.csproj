@@ -3,6 +3,7 @@
   <ItemGroup>
     <ProjectReference Include="..\Parser\Parser.csproj" />
     <ProjectReference Include="..\Execution\Execution.csproj" />
+    <ProjectReference Include="..\Runtime\Runtime.csproj" />
   </ItemGroup>
 
   <PropertyGroup>

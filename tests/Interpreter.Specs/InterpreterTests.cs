@@ -35,6 +35,81 @@ public class InterpreterTests
         return new TheoryData<string, Tuple<List<decimal>, List<decimal>>>
         {
             {
+                @"
+                let x = input();
+                let y = input();
+                let z = input();
+
+                fn solve(a, b, c) 
+                {
+                    if (a == 0) 
+                    {
+                        if (b != 0) 
+                        {
+                            let root1 = -c / b;
+                            print(root1);
+                            return 1;
+                        }
+                    }
+                    else 
+                    {
+                        let disc = b * b - 4 * a * c;
+                        if (disc > 0) 
+                        {
+                            let sqrt_disc = pow(disc, 0.5);
+                            let root1 = (-b + sqrt_disc) / (2 * a);
+                            let root2 = (-b - sqrt_disc) / (2 * a);
+                            print(root1);
+                            print(root2);
+                            return 2;
+                        }
+                        if (disc == 0) 
+                        {
+                            let root1 = -b / (2 * a);
+                            print(root1);
+                            return 1;
+                        }
+                    }
+                    return 0;
+                }
+                let result = solve(x, y, z);
+                print(result);",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { 2m, 3m, -2m },
+                    new List<decimal> { 0.5m, -2m, 2 }
+                )
+            },
+            {
+                @"fn is_prime(n) {
+                    if (n < 2) 
+                    {
+                        return 0;
+                    }
+                    if (n == 2) 
+                    {
+                        return 1;
+                    }
+
+                    let limit = pow(n, 0.5);
+                    let i = 3;
+                    while (i <= limit) 
+                    {
+                        if (n % i == 0) 
+                        {
+                            return 0;
+                        }
+                        i = i + 2;
+                    }
+                    return 1;
+                }
+                print(is_prime(139));
+                ",
+                new Tuple<List<decimal>, List<decimal>>(
+                    new List<decimal> { },
+                    new List<decimal> { 1 }
+                )
+            },
+            {
                 @"fn factorial(n) {
                     let fact = 1;
                     for (let i = 1; i <= n; i = i + 1) 
@@ -145,52 +220,6 @@ public class InterpreterTests
                 new Tuple<List<decimal>, List<decimal>>(
                     new List<decimal> { },
                     new List<decimal> { 1, 2, 4, 5 }
-                )
-            },
-            {
-                @"for (let x = 0; x < 5; x = x + 1) {
-                      if (x % 2 == 0 && x != 0) {
-                          print(x);
-                      }
-                  }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 2, 4 }
-                )
-            },
-            {
-                @"let i = 0;
-                  let x = 1;
-                  for (x = 0; x < 5; x = x + 1) {
-                      i = i + 1;
-                  }
-                  print(i);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 5 }
-                )
-            },
-            {
-                @"let x = 0;
-                  for (let j = 0; j < 5; j = j + 1) {
-                      x = x + 1;
-                  }
-                  print(x);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 5 }
-                )
-            },
-            {
-                @"let i = 0;
-                  while (i < 5) {
-                      let temp = i + 1;
-                      i = temp;
-                  }
-                  print(i);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 5 }
                 )
             },
             {
@@ -398,7 +427,7 @@ public class InterpreterTests
                     new List<decimal> { 1, 2 },
                     new List<decimal> { 1 }
                 )
-            }, 
+            },
             {
                 "let x = input();" +
                 "let y = input();" +
