@@ -1,17 +1,21 @@
+using Runtime;
+using ValueType = Runtime.ValueType;
+
 namespace Ast.Expressions;
 
 public sealed class LiteralExpression : Expression
 {
-    public LiteralExpression(decimal value)
+    public LiteralExpression(ValueType type, Value value)
     {
+        Type = type;
         Value = value;
     }
 
-    public decimal Value { get; }
+    public ValueType Type { get; }
 
-    public override void Accept(
-        IAstVisitor visitor
-    )
+    public Value Value { get; }
+
+    public override void Accept(IAstVisitor visitor)
     {
         visitor.Visit(this);
     }

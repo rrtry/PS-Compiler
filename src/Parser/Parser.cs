@@ -7,6 +7,8 @@ using Ast.Expressions;
 using Ast.Declarations;
 using Ast.Statements;
 
+using Runtime;
+
 /// <summary>
 /// Грамматика описана в файле `docs/specification/expressions-grammar.md`.
 /// </summary>
@@ -137,21 +139,48 @@ public class Parser
         string functionName = functionNameToken.Value!.ToString();
 
         Match(TokenType.LeftParen);
-        List<string> parameters = [];
-
+        List<ParameterDeclaration> parameters = [];
         if (tokens.Peek().Type != TokenType.RightParen)
         {
-            do
-            {
-                Token paramToken = Match(TokenType.Identifier);
-                parameters.Add(paramToken.Value!.ToString());
-            }
-            while (MatchOptional(TokenType.Comma));
+            parameters = ParseParameterDeclarationList();
         }
 
         Match(TokenType.RightParen);
+
+        string? returnType = null;
+        if (tokens.Peek().Type == TokenType.Colon)
+        {
+            tokens.Advance();
+            returnType = Match(TokenType.Identifier).Value!.ToString();
+        }
+
         BlockStatement body = ParseBlockStatement();
-        return new FunctionDeclaration(functionName, parameters, body);
+        return new FunctionDeclaration(functionName, parameters, returnType, body);
+    }
+
+    private List<ParameterDeclaration> ParseParameterDeclarationList()
+    {
+        List<ParameterDeclaration> declarations =
+        [
+            ParseParameterDeclaration(),
+        ];
+
+        while (tokens.Peek().Type == TokenType.Comma)
+        {
+            tokens.Advance();
+            declarations.Add(ParseParameterDeclaration());
+        }
+
+        return declarations;
+    }
+
+    private ParameterDeclaration ParseParameterDeclaration()
+    {
+        string name = Match(TokenType.Identifier).Value!.ToString();
+        Match(TokenType.Colon);
+        string typeName = Match(TokenType.Identifier).Value!.ToString();
+
+        return new ParameterDeclaration(name, typeName);
     }
 
     /// <summary>
@@ -222,16 +251,11 @@ public class Parser
         Match(TokenType.LeftParen);
         AstNode initialization = ParseStatement();
 
-        if (initialization is not VariableDeclaration and not AssignmentExpression)
-        {
-            throw new Exception("Invalid for loop initialization");
-        }
-
         string name = initialization switch
         {
             VariableDeclaration varDecl => varDecl.Name,
             AssignmentExpression assignExpr => assignExpr.Name,
-            _ => throw new Exception("Unreachable code")
+            _ => throw new Exception("Invalid for loop initialization")
         };
 
         Expression condition = ParseExpression();
@@ -364,9 +388,17 @@ public class Parser
         Token identifier = Match(TokenType.Identifier);
         string name = identifier.Value!.ToString();
 
+        string? declaredType = null;
+        if (tokens.Peek().Type == TokenType.Colon)
+        {
+            tokens.Advance();
+            declaredType = tokens.Peek().Value?.ToString();
+            tokens.Advance();
+        }
+
         Match(TokenType.Assign);
         Expression value = ParseExpression();
-        return new VariableDeclaration(name, value);
+        return new VariableDeclaration(name, declaredType, value);
     }
 
     private Expression ParsePrintStatement()
@@ -480,9 +512,12 @@ public class Parser
         switch (token.Type)
         {
             case TokenType.IntegerLiteral:
+                tokens.Advance();
+                return new LiteralExpression(ValueType.Int, new Value((long)token.Value!.ToDecimal()));
+
             case TokenType.FloatLiteral:
                 tokens.Advance();
-                return new LiteralExpression(token.Value!.ToDecimal());
+                return new LiteralExpression(ValueType.Float, new Value(token.Value!.ToDecimal()));
 
             case TokenType.Input:
                 tokens.Advance();

@@ -30,6 +30,8 @@ public interface IAstVisitor
 
     public void Visit(AbstractFunctionDeclaration d);
 
+    public void Visit(ParameterDeclaration d);
+
     public void Visit(IfElseStatement s);
 
     public void Visit(BlockStatement s);

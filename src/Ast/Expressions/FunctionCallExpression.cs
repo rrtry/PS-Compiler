@@ -1,18 +1,30 @@
+using Ast.Attributes;
+using Ast.Declarations;
+
 namespace Ast.Expressions;
 
+/// <summary>
+/// Выражение вызова функции со списком аргументов.
+/// </summary>
 public class FunctionCallExpression : Expression
 {
-    private readonly List<Expression> _arguments;
+    private AstAttribute<AbstractFunctionDeclaration> _function;
 
-    public FunctionCallExpression(string name, List<Expression> arguments)
+    public FunctionCallExpression(string name, IReadOnlyList<Expression> arguments)
     {
         Name = name;
-        _arguments = arguments;
+        Arguments = arguments;
     }
 
     public string Name { get; }
 
-    public IReadOnlyList<Expression> Arguments => _arguments;
+    public AbstractFunctionDeclaration Function
+    {
+        get => _function.Get();
+        set => _function.Set(value);
+    }
+
+    public IReadOnlyList<Expression> Arguments { get; }
 
     public override void Accept(IAstVisitor visitor)
     {

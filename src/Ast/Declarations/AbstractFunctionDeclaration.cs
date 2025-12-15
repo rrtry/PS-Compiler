@@ -1,8 +1,14 @@
 namespace Ast.Declarations;
 
+/// <summary>
+/// Абстрактный класс с информацией о функции — как встроенной, так и пользовательской.
+/// </summary>
 public abstract class AbstractFunctionDeclaration : Declaration
 {
-    public AbstractFunctionDeclaration(string name, List<string> parameters)
+    protected AbstractFunctionDeclaration(
+        string name,
+        IReadOnlyList<AbstractParameterDeclaration> parameters
+    )
     {
         Name = name;
         Parameters = parameters;
@@ -10,5 +16,5 @@ public abstract class AbstractFunctionDeclaration : Declaration
 
     public string Name { get; }
 
-    public List<string> Parameters { get; }
+    public IReadOnlyList<AbstractParameterDeclaration> Parameters { get; }
 }

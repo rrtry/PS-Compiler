@@ -1,6 +1,7 @@
 namespace Execution;
 
 using Ast;
+using Runtime;
 using Ast.Declarations;
 using Ast.Expressions;
 using Ast.Statements;
@@ -11,7 +12,7 @@ public class AstEvaluator : IAstVisitor
 {
     private readonly Context context;
 
-    private readonly Stack<decimal> values = [];
+    private readonly Stack<Value> values = [];
 
     public AstEvaluator(Context context)
     {
@@ -29,6 +30,25 @@ public class AstEvaluator : IAstVisitor
 
         node.Accept(this);
 
+        switch (values.Count)
+        {
+            case 0:
+                throw new InvalidOperationException("Evaluator logical error: the stack has no evaluation result");
+
+            case > 1:
+                throw new InvalidOperationException($"Evaluator logical error: expected 1 value, got {values.Count} values: {string.Join(", ", values)}");
+
+            default:
+                Value v = values.Pop();
+                if (v == Value.Void)
+                {
+                    return 0m;
+                }
+
+                return v.AsLong();
+        }
+
+        /*
         return values.Count switch
         {
             0 => throw new InvalidOperationException(
@@ -38,7 +58,7 @@ public class AstEvaluator : IAstVisitor
                 $"Evaluator logical error: expected 1 value, got {values.Count} values: {string.Join(", ", values)}"
             ),
             _ => values.Pop(),
-        };
+        }; */
     }
 
     public void Visit(BinaryOperationExpression e)
@@ -46,52 +66,52 @@ public class AstEvaluator : IAstVisitor
         e.Left.Accept(this);
         e.Right.Accept(this);
 
-        decimal right = values.Pop();
-        decimal left = values.Pop();
+        long right = values.Pop().AsLong();
+        long left = values.Pop().AsLong();
 
         switch (e.Operation)
         {
             case BinaryOperation.And:
-                values.Push((!Numbers.AreEqual(0m, left) && !Numbers.AreEqual(0m, right)) ? 1 : 0);
+                values.Push(new Value((!Numbers.AreEqual(0, left) && !Numbers.AreEqual(0, right)) ? 1L : 0L));
                 break;
             case BinaryOperation.Or:
-                values.Push((!Numbers.AreEqual(0m, left) || !Numbers.AreEqual(0m, right)) ? 1 : 0);
+                values.Push(new Value((!Numbers.AreEqual(0, left) || !Numbers.AreEqual(0, right)) ? 1L : 0L));
                 break;
             case BinaryOperation.Modulo:
-                values.Push(left % right);
+                values.Push(new Value(left % right));
                 break;
             case BinaryOperation.Add:
-                values.Push(left + right);
+                values.Push(new Value(left + right));
                 break;
             case BinaryOperation.Substract:
-                values.Push(left - right);
+                values.Push(new Value(left - right));
                 break;
             case BinaryOperation.Multiply:
-                values.Push(left * right);
+                values.Push(new Value(left * right));
                 break;
             case BinaryOperation.Divide:
-                values.Push(left / right);
+                values.Push(new Value(left / right));
                 break;
             case BinaryOperation.Equal:
-                values.Push(Numbers.AreEqual(left, right) ? 1 : 0);
+                values.Push(new Value(Numbers.AreEqual(left, right) ? 1L : 0L));
                 break;
             case BinaryOperation.NotEqual:
-                values.Push(Numbers.AreEqual(left, right) ? 0 : 1);
+                values.Push(new Value(Numbers.AreEqual(left, right) ? 0L : 1L));
                 break;
             case BinaryOperation.GreaterThan:
-                values.Push(Numbers.IsGreaterThan(left, right) ? 1 : 0);
+                values.Push(new Value(Numbers.IsGreaterThan(left, right) ? 1L : 0L));
                 break;
             case BinaryOperation.LessThan:
-                values.Push(Numbers.IsLessThan(left, right) ? 1 : 0);
+                values.Push(new Value(Numbers.IsLessThan(left, right) ? 1L : 0L));
                 break;
             case BinaryOperation.GreaterThanOrEqual:
-                values.Push(Numbers.IsGreaterThanOrEqual(left, right) ? 1 : 0);
+                values.Push(new Value(Numbers.IsGreaterThanOrEqual(left, right) ? 1L : 0L));
                 break;
             case BinaryOperation.LessThanOrEqual:
-                values.Push(Numbers.IsLessOrEqual(left, right) ? 1 : 0);
+                values.Push(new Value(Numbers.IsLessOrEqual(left, right) ? 1L : 0L));
                 break;
             case BinaryOperation.Power:
-                values.Push((decimal)Math.Pow((double)left, (double)right));
+                values.Push(new Value((long)Math.Pow(left, right)));
                 break;
             default:
                 throw new NotImplementedException($"Unknown binary operation {e.Operation}");
@@ -104,10 +124,10 @@ public class AstEvaluator : IAstVisitor
         switch (e.Operation)
         {
             case UnaryOperation.Not:
-                values.Push(Numbers.AreEqual(0m, values.Pop()) ? 1m : 0m);
+                values.Push(new Value(Numbers.AreEqual(0, values.Pop().AsLong()) ? 1L : 0L));
                 break;
             case UnaryOperation.Minus:
-                values.Push(-values.Pop());
+                values.Push(new Value(-values.Pop().AsLong()));
                 break;
             case UnaryOperation.Plus:
                 break;
@@ -128,70 +148,30 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(FunctionCallExpression e)
     {
-        AbstractFunctionDeclaration function = context.GetFunction(e.Name);
-        foreach (Expression argument in e.Arguments)
+        e.Function = context.TryGetFunction(e.Name);
+        switch (e.Function)
         {
-            argument.Accept(this);
+            case NativeFunction nativeFunction:
+                InvokeNativeFunction(e, nativeFunction);
+                break;
+            case FunctionDeclaration function:
+                InvokeFunction(e, function);
+                break;
+            default:
+                throw new InvalidOperationException($"Unknown function subclass {e.Function.GetType()}");
         }
-
-        decimal result;
-        if (function is NativeFunction)
-        {
-            List<decimal> args = [];
-            for (int i = 0; i < function.Parameters.Count; i++)
-            {
-                args.Insert(0, values.Pop());
-            }
-
-            result = ((NativeFunction)function).Invoke(args);
-        }
-        else
-        {
-            context.PushScope(new Scope());
-            bool hasReturn = false;
-
-            try
-            {
-                foreach (string name in Enumerable.Reverse(function.Parameters))
-                {
-                    context.DefineVariable(name, values.Pop());
-                }
-
-                ((FunctionDeclaration)function).Body.Accept(this);
-            }
-            catch (ReturnException)
-            {
-                hasReturn = true;
-            }
-            finally
-            {
-                if (!hasReturn)
-                {
-                    throw new InvalidOperationException("Function has to have a return statement in the end");
-                }
-                else
-                {
-                    values.Pop(); // First pop return statement value
-                    result = values.Pop(); // Then the expression we return;
-                }
-
-                context.PopScope();
-            }
-        }
-
-        values.Push(result); // Again, push the value return by the function
     }
 
     public void Visit(AssignmentExpression e)
     {
         e.Value.Accept(this);
-        decimal value = values.Peek();
+        Value value = values.Peek();
         context.AssignVariable(e.Name, value);
     }
 
     public void Visit(BlockStatement s)
     {
-        values.Push(0m);
+        values.Push(Value.Void);
         context.PushScope(new Scope());
 
         try
@@ -212,8 +192,8 @@ public class AstEvaluator : IAstVisitor
     {
         s.Condition.Accept(this);
 
-        decimal conditionValue = values.Pop();
-        bool isTrueCondition = !Numbers.AreEqual(0.0m, conditionValue);
+        long conditionValue = values.Pop().AsLong();
+        bool isTrueCondition = !Numbers.AreEqual(0, conditionValue);
 
         if (isTrueCondition)
         {
@@ -227,7 +207,7 @@ public class AstEvaluator : IAstVisitor
             }
             else
             {
-                values.Push(0m);
+                values.Push(Value.Void);
             }
         }
     }
@@ -238,17 +218,17 @@ public class AstEvaluator : IAstVisitor
         try
         {
             e.StartValue.Accept(this);
-            decimal iteratorValue = values.Pop();
+            long iteratorValue = values.Pop().AsLong();
 
-            context.AssignVariable(e.IteratorName, iteratorValue); // Changed: DefineVariable -> AssignVariable
-            values.Push(0.0m);
+            context.AssignVariable(e.IteratorName, new Value(iteratorValue)); // Changed: DefineVariable -> AssignVariable
+            values.Push(Value.Void);
 
             while (true)
             {
                 e.EndCondition.Accept(this);
-                decimal endCondition = values.Pop();
+                long endCondition = values.Pop().AsLong();
 
-                if (Numbers.AreEqual(0m, endCondition))
+                if (Numbers.AreEqual(0, endCondition))
                 {
                     break;
                 }
@@ -277,7 +257,7 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(WhileLoopStatement e)
     {
-        values.Push(0m);
+        values.Push(Value.Void);
         context.PushScope(new Scope());
 
         try
@@ -285,9 +265,9 @@ public class AstEvaluator : IAstVisitor
             while (true)
             {
                 e.Condition.Accept(this);
-                decimal condition = values.Pop();
+                long condition = values.Pop().AsLong();
 
-                if (Numbers.AreEqual(0m, condition))
+                if (Numbers.AreEqual(0, condition))
                 {
                     break;
                 }
@@ -313,38 +293,33 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(VariableDeclaration d)
     {
-        decimal value = 0;
-        if (d.Value != null)
-        {
-            d.Value.Accept(this);
-            value = values.Peek();
-        }
-
+        d.InitialValue.Accept(this);
+        Value value = values.Peek();
         context.DefineVariable(d.Name, value);
     }
 
     public void Visit(AbstractFunctionDeclaration d)
     {
-        values.Push(0m);
+        values.Push(Value.Void);
         context.DefineFunction(d);
     }
 
     public void Visit(BreakLoopStatement s)
     {
-        values.Push(0m);
+        values.Push(Value.Void);
         throw new BreakLoopException();
     }
 
     public void Visit(ContinueLoopStatement s)
     {
-        values.Push(0m);
+        values.Push(Value.Void);
         throw new ContinueLoopException();
     }
 
     public void Visit(ReturnStatement s)
     {
         s.ReturnValue.Accept(this);
-        values.Push(0m);
+        values.Push(Value.Void);
         throw new ReturnException();
     }
 
@@ -358,5 +333,63 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(IfElseExpression e)
     {
+    }
+
+    public void Visit(ParameterDeclaration d)
+    {
+    }
+
+    private void InvokeNativeFunction(FunctionCallExpression e, NativeFunction function)
+    {
+        List<Value> arguments = [];
+        foreach (Expression argument in e.Arguments)
+        {
+            argument.Accept(this);
+            arguments.Add(values.Pop());
+        }
+
+        Value result = function.Invoke(arguments);
+        values.Push(result);
+    }
+
+    private void InvokeFunction(FunctionCallExpression e, FunctionDeclaration function)
+    {
+        bool hasReturn = false;
+        Value returnValue = Value.Void;
+        context.PushScope(new Scope());
+
+        try
+        {
+            for (int i = 0, iMax = function.Parameters.Count; i < iMax; ++i)
+            {
+                e.Arguments[i].Accept(this);
+                Value argument = values.Pop();
+
+                string name = function.Parameters[i].Name;
+                context.DefineVariable(name, argument);
+            }
+
+            function.Body.Accept(this);
+        }
+        catch (ReturnException)
+        {
+            hasReturn = true;
+        }
+        finally
+        {
+            if (!hasReturn)
+            {
+                throw new InvalidOperationException("Function has to have a return statement in the end");
+            }
+            else
+            {
+                values.Pop(); // First pop return statement value
+                returnValue = values.Pop(); // Then the expression we return;
+            }
+
+            context.PopScope();
+        }
+
+        values.Push(returnValue);
     }
 }

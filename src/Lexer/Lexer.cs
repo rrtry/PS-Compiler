@@ -117,6 +117,9 @@ public class Lexer
         // TODO: добавить побитовые операторы (& | << >> ~)
         switch (c)
         {
+            case ':':
+                scanner.Advance();
+                return new Token(TokenType.Colon);
             case '{':
                 scanner.Advance();
                 return new Token(TokenType.LeftBrace);

@@ -1,18 +1,34 @@
+using Ast.Attributes;
 using Ast.Expressions;
+
+using ValueType = Runtime.ValueType;
 
 namespace Ast.Declarations;
 
-public sealed class VariableDeclaration : Declaration
+/// <summary>
+///  Узел дерева, представляющий объявление переменной.
+///  У переменной может быть указан тип и всегда указано начальное значение.
+/// </summary>
+public sealed class VariableDeclaration : AbstractVariableDeclaration
 {
-    public VariableDeclaration(string name, Expression? value)
+    private AstAttribute<AbstractTypeDeclaration?> _declaredType;
+
+    public VariableDeclaration(string name, string? declaredTypeName, Expression initialValue)
+        : base(name)
     {
-        Name = name;
-        Value = value;
+        DeclaredTypeName = declaredTypeName;
+        InitialValue = initialValue;
     }
 
-    public string Name { get; }
+    public string? DeclaredTypeName { get; }
 
-    public Expression? Value { get; }
+    public Expression InitialValue { get; }
+
+    public AbstractTypeDeclaration? DeclaredType
+    {
+        get => _declaredType.Get();
+        set => _declaredType.Set(value);
+    }
 
     public override void Accept(IAstVisitor visitor)
     {

@@ -5,6 +5,9 @@ namespace Lexer;
 /// </summary>
 public enum TokenType
 {
+    /// <summary>Определение типа (`:`).</summary>
+    Colon,
+
     /// <summary>Определение функции (`fn`).</summary>
     Fn,
 

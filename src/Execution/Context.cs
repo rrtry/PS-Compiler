@@ -1,6 +1,9 @@
 namespace Execution;
 
+using Runtime;
 using Ast.Declarations;
+
+using ValueType = Runtime.ValueType;
 
 /// <summary>
 /// Контекст выполнения программы (все переменные, константы и другие символы).
@@ -10,22 +13,108 @@ public class Context
     private readonly IEnvironment environment;
     private readonly Stack<Scope> scopes = [];
     private readonly Dictionary<string, AbstractFunctionDeclaration> functions = [];
+    private readonly Dictionary<string, NativeFunction> nativeFunctions;
 
     public Context(IEnvironment environment)
     {
-        this.environment = environment;
-        functions["input"] = new NativeFunction("input", [], (args) => environment.ReadDecimal() ?? throw new ArgumentException("Couldn't read decimal from stdin"));
-        functions["print"] = new NativeFunction("print", ["s"], (args) =>
-        {
-            this.environment.PrintDecimal(args[0]);
-            return 0;
-        });
-        functions["abs"] = new NativeFunction("abs", ["x"], (args) => (decimal)Math.Abs((double)args[0]));
-        functions["pow"] = new NativeFunction("pow", ["x", "y"], (args) => (decimal)Math.Pow((double)args[0], (double)args[1]));
-        functions["max"] = new NativeFunction("max", ["x", "y"], (args) => (decimal)Math.Max((double)args[0], (double)args[1]));
-        functions["min"] = new NativeFunction("min", ["x", "y"], (args) => (decimal)Math.Min((double)args[0], (double)args[1]));
-
         scopes.Push(new Scope());
+        this.environment = environment;
+        this.nativeFunctions = new Dictionary<string, NativeFunction>
+        {
+            {
+                "input",
+                new(
+                    "input",
+                    [],
+                    ValueType.Int,
+                    _ =>
+                    {
+                        decimal d = environment.ReadDecimal() ?? throw new ArgumentException("Couldn't read decimal from stdin");
+                        return new Value((long)d);
+                    }
+                )
+            },
+            {
+                "print",
+                new(
+                    "print",
+                    [ new NativeFunctionParameter("n", ValueType.Int),],
+                    ValueType.Void,
+                    arguments =>
+                    {
+                        environment.PrintDecimal(arguments[0].AsLong());
+                        return new Value(0L);
+                    }
+                )
+            },
+            {
+                "abs",
+                new(
+                    "abs",
+                    [new NativeFunctionParameter("x", ValueType.Int)],
+                    ValueType.Int,
+                    (args) =>
+                    {
+                        long l = Math.Abs(args[0].AsLong());
+                        return new Value(l);
+                    }
+                )
+            },
+            {
+                "pow",
+                new(
+                    "pow",
+                    [new NativeFunctionParameter("x", ValueType.Int), new NativeFunctionParameter("y", ValueType.Int)],
+                    ValueType.Int,
+                    (args) =>
+                    {
+                        long l = (long)Math.Pow(args[0].AsLong(), args[1].AsLong());
+                        return new Value(l);
+                    }
+                )
+            },
+            {
+                "min",
+                new(
+                    "min",
+                    [new NativeFunctionParameter("x", ValueType.Int), new NativeFunctionParameter("y", ValueType.Int)],
+                    ValueType.Int,
+                    (args) =>
+                    {
+                        long l = Math.Min(args[0].AsLong(), args[1].AsLong());
+                        return new Value(l);
+                    }
+                )
+            },
+            {
+                "max",
+                new(
+                    "max",
+                    [new NativeFunctionParameter("x", ValueType.Int), new NativeFunctionParameter("y", ValueType.Int)],
+                    ValueType.Int,
+                    (args) =>
+                    {
+                        long l = Math.Max(args[0].AsLong(), args[1].AsLong());
+                        return new Value(l);
+                    }
+                )
+            },
+        };
+    }
+
+    public AbstractFunctionDeclaration TryGetFunction(string name)
+    {
+        if (nativeFunctions.TryGetValue(name, out NativeFunction? nativeFunction))
+        {
+            return nativeFunction;
+        }
+
+        if (functions.TryGetValue(name, out AbstractFunctionDeclaration? function))
+        {
+            return function;
+        }
+
+        throw new ArgumentException($"Function '{name}' is not defined");
     }
 
     public AbstractFunctionDeclaration GetFunction(string name)
@@ -59,11 +148,11 @@ public class Context
     /// <summary>
     /// Возвращает значение переменной или константы.
     /// </summary>
-    public decimal GetValue(string name)
+    public Value GetValue(string name)
     {
         foreach (Scope s in scopes)
         {
-            if (s.TryGetVariable(name, out decimal variable))
+            if (s.TryGetVariable(name, out Value variable))
             {
                 return variable;
             }
@@ -75,7 +164,7 @@ public class Context
     /// <summary>
     /// Присваивает (изменяет) значение переменной.
     /// </summary>
-    public void AssignVariable(string name, decimal value)
+    public void AssignVariable(string name, Value value)
     {
         foreach (Scope s in scopes.Reverse())
         {
@@ -91,7 +180,7 @@ public class Context
     /// <summary>
     /// Определяет переменную в текущей области видимости.
     /// </summary>
-    public void DefineVariable(string name, decimal value)
+    public void DefineVariable(string name, Value value)
     {
         if (!scopes.Peek().TryDefineVariable(name, value))
         {

@@ -29,9 +29,14 @@ public class Value : IEquatable<Value>
     /// <summary>
     /// Создаёт целочисленное значение.
     /// </summary>
-    public Value(int value)
+    public Value(long value)
     {
         _value = value;
+    }
+
+    public Value(decimal value)
+    {
+        _value = (double)value;
     }
 
     private Value(object value)
