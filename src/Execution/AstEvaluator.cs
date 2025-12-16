@@ -122,9 +122,11 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(AssignmentExpression e)
     {
-        e.Value.Accept(this);
+        e.Right.Accept(this);
         Value value = values.Peek();
-        context.AssignVariable(e.Name, value);
+
+        VariableExpression left = (VariableExpression)e.Left;
+        context.AssignVariable(left.Name, value);
     }
 
     public void Visit(BlockStatement s)

@@ -254,7 +254,7 @@ public class Parser
         string name = initialization switch
         {
             VariableDeclaration varDecl => varDecl.Name,
-            AssignmentExpression assignExpr => assignExpr.Name,
+            AssignmentExpression assignExpr => ((VariableExpression)assignExpr.Left).Name,
             _ => throw new Exception("Invalid for loop initialization")
         };
 
@@ -364,8 +364,8 @@ public class Parser
     }
 
     /// <summary>
-    /// variable_declaration =
-    /// "let", identifier, ["=", expression] ;.
+    /// assignment_statement =
+    /// identifier, "=", expression ;.
     /// </summary>
     private AssignmentExpression ParseVariableAssignment()
     {
@@ -373,13 +373,16 @@ public class Parser
         string name = identifier.Value!.ToString();
 
         Match(TokenType.Assign);
-        Expression value = ParseExpression();
-        return new AssignmentExpression(name, value);
+
+        Expression left = new VariableExpression(name);
+        Expression right = ParseExpression();
+
+        return new AssignmentExpression(left, right);
     }
 
     /// <summary>
-    /// assignment_statement =
-    /// identifier, "=", expression ;.
+    /// variable_declaration =
+    /// "let", identifier, ["=", expression] ;.
     /// </summary>
     private VariableDeclaration ParseVariableDefinition()
     {
