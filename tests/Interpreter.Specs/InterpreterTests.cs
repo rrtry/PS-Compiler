@@ -9,7 +9,8 @@ namespace Interpreter.Specs;
 public class InterpreterTests
 {
     [Theory]
-    [MemberData(nameof(GetExamplePrograms))]
+    [MemberData(nameof(GetSingleTypePrograms))]
+    [MemberData(nameof(GetMixedTypePrograms))]
     public void Can_interpret_simple_programs(string source, Tuple<List<string>, List<string>> tuple)
     {
         List<string> programInput = tuple.Item1;
@@ -33,18 +34,125 @@ public class InterpreterTests
         }
     }
 
-    public static TheoryData<string, Tuple<List<string>, List<string>>> GetExamplePrograms()
+    public static TheoryData<string, Tuple<List<string>, List<string>>> GetMixedTypePrograms()
     {
         return new TheoryData<string, Tuple<List<string>, List<string>>>
         {
-            /*
+            {
+                @"fn is_vowel(ch: str): int
+                {
+                    if (ch == ""A"" || ch == ""E"" || ch == ""I"" || ch == ""O"" || ch == ""U"" || ch == ""Y"") 
+                    {
+                        return 1;
+                    }
+                    if (ch == ""a"" || ch == ""e"" || ch == ""i"" || ch == ""o"" || ch == ""u"" || ch == ""y"") 
+                    {
+                        return 1;
+                    }
+                    return 0;
+                }
+
+                fn count_vowels(s: str): int 
+                {
+                    let count = 0;
+                    let len = strlen(s);
+                    let i = 0;
+
+                    while (i < len) 
+                    {
+                        let sub = substr(s, i, 1);
+                        if (is_vowel(sub)) 
+                        {
+                            count = count + 1;
+                        }
+                        i = i + 1;
+                    }
+                    return count;
+                }
+
+                let text = input();
+                let vowels = count_vowels(text);
+                prints(itos(vowels));",
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "Hello" },
+                    new List<string> { "2" }
+                )
+            },
             {
                 @"
-                let x = input();
-                let y = input();
-                let z = input();
+                fn reverse(s: str): str
+                {
+                    let len = strlen(s);
+                    let result = """";
 
-                fn solve(a: int, b: int, c: int) 
+                    let i = len - 1;
+                    while (i >= 0) 
+                    {
+                        let ch = substr(s, i, 1);
+                        result = strconcat(result, ch);
+                        i = i - 1;
+                    }
+
+                    return result;
+                }
+
+                let text = input();
+                let reversed = reverse(text);
+                prints(reversed);
+                ",
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "123" },
+                    new List<string> { "321" }
+                )
+            },
+            {
+                @"
+                let x = 1;
+                while (x) 
+                {
+                    let n = stoi(input());
+                    if (n == 0) 
+                    {
+                        break;
+                    }
+
+                    if (n % 15 == 0) 
+                    {
+                        prints(""FizzBuzz"");
+                        continue;
+                    }
+                    if (n % 3 == 0) 
+                    {
+                        prints(""Fizz"");
+                        continue;
+                    }
+                    if (n % 5 == 0) 
+                    {
+                        prints(""Buzz"");
+                        continue;
+                    }
+                    prints(itos(n));
+                }
+                ",
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "15", "3", "5", "0" },
+                    new List<string> { "FizzBuzz", "Fizz", "Buzz" }
+                )
+            },
+        };
+    }
+
+    public static TheoryData<string, Tuple<List<string>, List<string>>> GetSingleTypePrograms()
+    {
+        return new TheoryData<string, Tuple<List<string>, List<string>>>
+        {
+            {
+                @"
+                let x = stof(input());
+                let y = stof(input());
+                let z = stof(input());
+
+                fn solve(a: float, b: float, c: float) 
                 {
                     if (a == 0) 
                     {
@@ -79,8 +187,8 @@ public class InterpreterTests
                 let result = solve(x, y, z);
                 print(result);",
                 new Tuple<List<string>, List<string>>(
-                    new List<string> { 2m, 3m, -2m },
-                    new List<string> { 0.5m, -2m, 2 }
+                    new List<string> { "2", "3", "-2" },
+                    new List<string> { "0.50", "-2.00", "2" }
                 )
             },
             {
@@ -110,10 +218,9 @@ public class InterpreterTests
                 ",
                 new Tuple<List<string>, List<string>>(
                     new List<string> { },
-                    new List<string> { 1 }
+                    new List<string> { "1" }
                 )
             },
-            */
             {
                 @"fn factorial(n: int): int {
                     let fact = 1;
@@ -380,8 +487,8 @@ public class InterpreterTests
                 )
             },
             {
-                "let x = input();" +
-                "let y = input();" +
+                "let x = stoi(input());" +
+                "let y = stoi(input());" +
                 "let z = x != y;" +
                 "print(z);",
                 new Tuple<List<string>, List<string>>(
@@ -390,8 +497,8 @@ public class InterpreterTests
                 )
             },
             {
-                "let x = input();" +
-                "let y = input();" +
+                "let x = stoi(input());" +
+                "let y = stoi(input());" +
                 "let z = x == y;" +
                 "print(z);",
                 new Tuple<List<string>, List<string>>(
@@ -400,8 +507,8 @@ public class InterpreterTests
                 )
             },
             {
-                "let x = input();" +
-                "let y = input();" +
+                "let x = stoi(input());" +
+                "let y = stoi(input());" +
                 "let z = x != y && x == 0;" +
                 "print(z);",
                 new Tuple<List<string>, List<string>>(
@@ -410,8 +517,8 @@ public class InterpreterTests
                 )
             },
             {
-                "let x = input();" +
-                "let y = input();" +
+                "let x = stoi(input());" +
+                "let y = stoi(input());" +
                 "let z = x != y || x == 0;" +
                 "print(z);",
                 new Tuple<List<string>, List<string>>(
@@ -420,8 +527,8 @@ public class InterpreterTests
                 )
             },
             {
-                "let x = input();" +
-                "let y = input();" +
+                "let x = stoi(input());" +
+                "let y = stoi(input());" +
                 "let z = (x != y) || (x == 0);" +
                 "print(z);",
                 new Tuple<List<string>, List<string>>(
@@ -430,8 +537,8 @@ public class InterpreterTests
                 )
             },
             {
-                "let x = input(); " +
-                "let y = input(); " +
+                "let x = stoi(input()); " +
+                "let y = stoi(input()); " +
                 "print(x + y);",
                 new Tuple<List<string>, List<string>>(
                     new List<string> { "1", "2" },
@@ -439,8 +546,8 @@ public class InterpreterTests
                 )
             },
             {
-                "let x = input(); " +
-                "let y = input(); " +
+                "let x = stoi(input()); " +
+                "let y = stoi(input()); " +
                 "y = 3; " +
                 "print(x + y);",
                 new Tuple<List<string>, List<string>>(

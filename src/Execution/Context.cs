@@ -22,16 +22,140 @@ public class Context
         this.nativeFunctions = new Dictionary<string, NativeFunction>
         {
             {
+                "itos",
+                new(
+                    "itos",
+                    [new NativeFunctionParameter("i", ValueType.Int)],
+                    ValueType.String,
+                    arguments => new Value(arguments[0].AsLong().ToString())
+                )
+            },
+            {
+                "ftos",
+                new(
+                    "ftos",
+                    [new NativeFunctionParameter("f", ValueType.Float), new NativeFunctionParameter("p", ValueType.Int)],
+                    ValueType.String,
+                    arguments => new Value(arguments[0].AsDouble().ToString($"F{arguments[1]}"))
+                )
+            },
+            {
+                "ftoi",
+                new(
+                    "ftoi",
+                    [new NativeFunctionParameter("f", ValueType.Float)],
+                    ValueType.Int,
+                    arguments =>
+                    {
+                        double d = arguments[0].AsDouble();
+                        return new Value((long)d);
+                    }
+                )
+            },
+            {
+                "itof",
+                new(
+                    "itof",
+                    [new NativeFunctionParameter("i", ValueType.Int)],
+                    ValueType.Float,
+                    arguments =>
+                    {
+                        long l = arguments[0].AsLong();
+                        return new Value((double)l);
+                    }
+                )
+            },
+            {
+                "strconcat",
+                new(
+                    "sconcat",
+                    [new NativeFunctionParameter("s1", ValueType.String), new NativeFunctionParameter("s2", ValueType.String)],
+                    ValueType.String,
+                    arguments =>
+                    {
+                        string s1 = arguments[0].AsString();
+                        string s2 = arguments[1].AsString();
+                        return new Value(s1 + s2);
+                    }
+                )
+            },
+            {
+                "strlen",
+                new(
+                    "strlen",
+                    [new NativeFunctionParameter("s", ValueType.String)],
+                    ValueType.Int,
+                    arguments =>
+                    {
+                        string s = arguments[0].AsString();
+                        return new Value(s.Length);
+                    }
+                )
+            },
+            {
+                "substr",
+                new(
+                    "substr",
+                    [new NativeFunctionParameter("s", ValueType.String), new NativeFunctionParameter("from", ValueType.Int), new NativeFunctionParameter("to", ValueType.Int)],
+                    ValueType.String,
+                    arguments =>
+                    {
+                        string s = arguments[0].AsString();
+                        return new Value(s.Substring((int)arguments[1].AsLong(), (int)arguments[2].AsLong()));
+                    }
+                )
+            },
+            {
+                "stoi",
+                new(
+                    "int",
+                    [new NativeFunctionParameter("s", ValueType.String)],
+                    ValueType.Int,
+                    arguments =>
+                    {
+                        string s = arguments[0].AsString();
+                        long l = long.Parse(s);
+                        return new Value(l);
+                    }
+                )
+            },
+            {
+                "stof",
+                new(
+                    "stof",
+                    [new NativeFunctionParameter("s", ValueType.String)],
+                    ValueType.Float,
+                    arguments =>
+                    {
+                        string s = arguments[0].AsString();
+                        double d = double.Parse(s);
+                        return new Value(d);
+                    }
+                )
+            },
+            {
                 "input",
                 new(
                     "input",
                     [],
-                    ValueType.Int,
+                    ValueType.String,
                     _ =>
                     {
-                        string s = environment.Input() ?? throw new ArgumentException("Couldn't read string from stdin");
-                        long l = long.Parse(s);
-                        return new Value(l);
+                        string s = environment.Input();
+                        return new Value(s);
+                    }
+                )
+            },
+            {
+                "prints",
+                new(
+                    "prints",
+                    [ new NativeFunctionParameter("s", ValueType.String),],
+                    ValueType.Void,
+                    arguments =>
+                    {
+                        environment.Print(arguments[0].AsString());
+                        return Value.Void;
                     }
                 )
             },

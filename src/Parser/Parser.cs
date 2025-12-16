@@ -519,6 +519,10 @@ public class Parser
                 tokens.Advance();
                 return new LiteralExpression(ValueType.Float, new Value((double)token.Value!.ToDecimal()));
 
+            case TokenType.StringLiteral:
+                tokens.Advance();
+                return new LiteralExpression(ValueType.String, new Value(token.Value!.ToString()));
+
             case TokenType.Input:
                 tokens.Advance();
                 return ParseFunctionCall("input");
