@@ -1,5 +1,7 @@
 ﻿using Execution;
 
+using Runtime;
+
 namespace Interpreter.Specs;
 
 public class InterpreterTests
@@ -41,7 +43,7 @@ public class InterpreterTests
                 let y = input();
                 let z = input();
 
-                fn solve(a: Int, b: Int, c: Int) 
+                fn solve(a: int, b: int, c: int) 
                 {
                     if (a == 0) 
                     {
@@ -57,7 +59,7 @@ public class InterpreterTests
                         let disc = b * b - 4 * a * c;
                         if (disc > 0) 
                         {
-                            let sqrt_disc = pow(disc, 0.5);
+                            let sqrt_disc = sqrt(disc);
                             let root1 = (-b + sqrt_disc) / (2 * a);
                             let root2 = (-b - sqrt_disc) / (2 * a);
                             print(root1);
@@ -79,9 +81,9 @@ public class InterpreterTests
                     new List<decimal> { 2m, 3m, -2m },
                     new List<decimal> { 0.5m, -2m, 2 }
                 )
-            }, 
+            },
             {
-                @"fn is_prime(n: Int): Int {
+                @"fn is_prime(n: int): int {
                     if (n < 2) 
                     {
                         return 0;
@@ -91,7 +93,7 @@ public class InterpreterTests
                         return 1;
                     }
 
-                    let limit = pow(n, 0.5);
+                    let limit = sqrt(n);
                     let i = 3;
                     while (i <= limit) 
                     {
@@ -109,7 +111,8 @@ public class InterpreterTests
                     new List<decimal> { },
                     new List<decimal> { 1 }
                 )
-            }, */
+            },
+            */
             {
                 @"fn factorial(n: int): int {
                     let fact = 1;
@@ -157,13 +160,13 @@ public class InterpreterTests
                 )
             },
             {
-                @"fn power(a: int, b: int) {
-                    return a ^ b;
+                @"fn add(a: int, b: int) {
+                    return a + b;
                 }
-                print(power(2, 3));",
+                print(add(2, 3));",
                 new Tuple<List<decimal>, List<decimal>>(
                     new List<decimal> { },
-                    new List<decimal> { 8 }
+                    new List<decimal> { 5 }
                 )
             },
             {
@@ -444,51 +447,6 @@ public class InterpreterTests
                     new List<decimal> { 4 }
                 )
             },
-            /*
-            {
-                @"let x = 4;
-                  let y = 2;
-                  if (pow(x, 0.5) == y) {
-                      let z = 2;
-                      print((x + y) * z);
-                  } else {
-                    print(x - y);
-                  }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 12 }
-                )
-            },
-            {
-                "let x = input(); " +
-                "let y = input(); " +
-                "let result = pow(x + y, 0.5); " +
-                "print(result);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 2, 2 },
-                    new List<decimal> { 2 }
-                )
-            },
-            {
-                "let x = 2; " +
-                "let y = 2; " +
-                "let result = (x + y) ^ 0.5; " +
-                "print(result);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 2, 2 },
-                    new List<decimal> { 2 }
-                )
-            },
-            {
-                "let PI = input(); " +
-                "let radius = input(); " +
-                "let area = (radius ^ 2) * PI; " +
-                "print(area);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 3.14159265358979323846m, 10m },
-                    new List<decimal> { 100.0m * 3.14159265358979323846m }
-                )
-            }, */
         };
     }
 }

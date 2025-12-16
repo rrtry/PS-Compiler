@@ -29,7 +29,6 @@ public class AstEvaluator : IAstVisitor
         }
 
         node.Accept(this);
-
         switch (values.Count)
         {
             case 0:
@@ -47,74 +46,23 @@ public class AstEvaluator : IAstVisitor
 
                 return v.AsLong();
         }
-
-        /*
-        return values.Count switch
-        {
-            0 => throw new InvalidOperationException(
-                "Evaluator logical error: the stack has no evaluation result"
-            ),
-            > 1 => throw new InvalidOperationException(
-                $"Evaluator logical error: expected 1 value, got {values.Count} values: {string.Join(", ", values)}"
-            ),
-            _ => values.Pop(),
-        }; */
     }
 
     public void Visit(BinaryOperationExpression e)
     {
-        e.Left.Accept(this);
-        e.Right.Accept(this);
+        values.Push(EvaluationUtil.ApplyBinaryOperation(e.Operation, EvaluateLeft, EvaluateRight));
+        return;
 
-        long right = values.Pop().AsLong();
-        long left = values.Pop().AsLong();
-
-        switch (e.Operation)
+        Value EvaluateLeft()
         {
-            case BinaryOperation.And:
-                values.Push(new Value((!Numbers.AreEqual(0, left) && !Numbers.AreEqual(0, right)) ? 1L : 0L));
-                break;
-            case BinaryOperation.Or:
-                values.Push(new Value((!Numbers.AreEqual(0, left) || !Numbers.AreEqual(0, right)) ? 1L : 0L));
-                break;
-            case BinaryOperation.Modulo:
-                values.Push(new Value(left % right));
-                break;
-            case BinaryOperation.Add:
-                values.Push(new Value(left + right));
-                break;
-            case BinaryOperation.Substract:
-                values.Push(new Value(left - right));
-                break;
-            case BinaryOperation.Multiply:
-                values.Push(new Value(left * right));
-                break;
-            case BinaryOperation.Divide:
-                values.Push(new Value(left / right));
-                break;
-            case BinaryOperation.Equal:
-                values.Push(new Value(Numbers.AreEqual(left, right) ? 1L : 0L));
-                break;
-            case BinaryOperation.NotEqual:
-                values.Push(new Value(Numbers.AreEqual(left, right) ? 0L : 1L));
-                break;
-            case BinaryOperation.GreaterThan:
-                values.Push(new Value(Numbers.IsGreaterThan(left, right) ? 1L : 0L));
-                break;
-            case BinaryOperation.LessThan:
-                values.Push(new Value(Numbers.IsLessThan(left, right) ? 1L : 0L));
-                break;
-            case BinaryOperation.GreaterThanOrEqual:
-                values.Push(new Value(Numbers.IsGreaterThanOrEqual(left, right) ? 1L : 0L));
-                break;
-            case BinaryOperation.LessThanOrEqual:
-                values.Push(new Value(Numbers.IsLessOrEqual(left, right) ? 1L : 0L));
-                break;
-            case BinaryOperation.Power:
-                values.Push(new Value((long)Math.Pow(left, right)));
-                break;
-            default:
-                throw new NotImplementedException($"Unknown binary operation {e.Operation}");
+            e.Left.Accept(this);
+            return values.Pop();
+        }
+
+        Value EvaluateRight()
+        {
+            e.Right.Accept(this);
+            return values.Pop();
         }
     }
 
@@ -124,13 +72,29 @@ public class AstEvaluator : IAstVisitor
         switch (e.Operation)
         {
             case UnaryOperation.Not:
-                values.Push(new Value(Numbers.AreEqual(0, values.Pop().AsLong()) ? 1L : 0L));
+                values.Push(new Value(values.Pop().AsLong() == 0L ? 1L : 0L));
                 break;
+
             case UnaryOperation.Minus:
-                values.Push(new Value(-values.Pop().AsLong()));
+                Value value = values.Pop();
+                if (value.IsDouble())
+                {
+                    values.Push(new Value(-value.AsDouble()));
+                }
+                else if (value.IsLong())
+                {
+                    values.Push(new Value(-value.AsLong()));
+                }
+                else
+                {
+                    throw new InvalidOperationException($"Bad unary operator for {value.GetType()}");
+                }
+
                 break;
+
             case UnaryOperation.Plus:
                 break;
+
             default:
                 throw new NotImplementedException($"Unknown unary operation {e.Operation}");
         }
@@ -191,11 +155,9 @@ public class AstEvaluator : IAstVisitor
     public void Visit(IfElseStatement s)
     {
         s.Condition.Accept(this);
+        long condition = values.Pop().AsLong();
 
-        long conditionValue = values.Pop().AsLong();
-        bool isTrueCondition = !Numbers.AreEqual(0, conditionValue);
-
-        if (isTrueCondition)
+        if (condition != 0L)
         {
             s.ThenBranch.Accept(this);
         }
@@ -226,9 +188,9 @@ public class AstEvaluator : IAstVisitor
             while (true)
             {
                 e.EndCondition.Accept(this);
-                long endCondition = values.Pop().AsLong();
+                long condition = values.Pop().AsLong();
 
-                if (Numbers.AreEqual(0, endCondition))
+                if (condition == 0L)
                 {
                     break;
                 }
@@ -267,7 +229,7 @@ public class AstEvaluator : IAstVisitor
                 e.Condition.Accept(this);
                 long condition = values.Pop().AsLong();
 
-                if (Numbers.AreEqual(0, condition))
+                if (condition == 0L)
                 {
                     break;
                 }

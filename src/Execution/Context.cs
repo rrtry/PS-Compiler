@@ -22,6 +22,24 @@ public class Context
         this.nativeFunctions = new Dictionary<string, NativeFunction>
         {
             {
+                "int",
+                new(
+                    "int",
+                    [new NativeFunctionParameter("x", ValueType.Float)],
+                    ValueType.Float,
+                    args => new Value((long)args[0].AsDouble())
+                )
+            },
+            {
+                "float",
+                new(
+                    "float",
+                    [new NativeFunctionParameter("x", ValueType.Int)],
+                    ValueType.Float,
+                    args => new Value((double)args[0].AsLong())
+                )
+            },
+            {
                 "input",
                 new(
                     "input",
@@ -57,6 +75,19 @@ public class Context
                     {
                         long l = Math.Abs(args[0].AsLong());
                         return new Value(l);
+                    }
+                )
+            },
+            {
+                "sqrt",
+                new(
+                    "sqrt",
+                    [new NativeFunctionParameter("x", ValueType.Float)],
+                    ValueType.Float,
+                    (args) =>
+                    {
+                        double r = Math.Sqrt(args[0].AsDouble());
+                        return new Value(r);
                     }
                 )
             },

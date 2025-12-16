@@ -35,6 +35,19 @@ public class TokenValue
     /// <summary>
     ///  Возвращает значение токена в виде числа.
     /// </summary>
+    public double ToDouble()
+    {
+        return val switch
+        {
+            string s => double.Parse(s, CultureInfo.InvariantCulture),
+            decimal d => (double)d,
+            _ => throw new NotImplementedException(),
+        };
+    }
+
+    /// <summary>
+    ///  Возвращает значение токена в виде числа.
+    /// </summary>
     public decimal ToDecimal()
     {
         return val switch

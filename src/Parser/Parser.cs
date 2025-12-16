@@ -517,7 +517,7 @@ public class Parser
 
             case TokenType.FloatLiteral:
                 tokens.Advance();
-                return new LiteralExpression(ValueType.Float, new Value(token.Value!.ToDecimal()));
+                return new LiteralExpression(ValueType.Float, new Value((double)token.Value!.ToDecimal()));
 
             case TokenType.Input:
                 tokens.Advance();

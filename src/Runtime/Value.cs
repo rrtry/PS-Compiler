@@ -14,6 +14,7 @@ namespace Runtime;
 /// </summary>
 public class Value : IEquatable<Value>
 {
+    public const double Tolerance = 0.001d;
     public static readonly Value Void = new(VoidValue.Value);
     public static readonly Value Nil = new(NilValue.Value);
     private readonly object _value;
@@ -34,14 +35,19 @@ public class Value : IEquatable<Value>
         _value = value;
     }
 
-    public Value(decimal value)
+    public Value(double value)
     {
-        _value = (double)value;
+        _value = value;
     }
 
     private Value(object value)
     {
         _value = value;
+    }
+
+    public bool IsNumeric()
+    {
+        return IsDouble() || IsLong();
     }
 
     public bool IsDouble()
@@ -58,6 +64,7 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             double d => d,
+            long l => l,
             _ => throw new InvalidOperationException($"Value {_value} is not a double"),
         };
     }
@@ -106,7 +113,7 @@ public class Value : IEquatable<Value>
         return _value switch
         {
             long i => i,
-            _ => throw new InvalidOperationException($"Value {_value} is not an integer"),
+            _ => throw new InvalidOperationException($"Value {_value} is not numeric"),
         };
     }
 
@@ -142,11 +149,11 @@ public class Value : IEquatable<Value>
             // Строки сравниваются посимвольно.
             string s => other.AsString() == s,
 
-            // Числа сравниваются по значению.
-            long i => other.AsLong() == i,
+            // Целые сравниваются по значению.
+            long i => other.IsDouble() ? Math.Abs(other.AsDouble() - i) < Tolerance : other.AsLong() == i,
 
-            // Числа сравниваются по значению.
-            double d => other.AsDouble() == d,
+            // Вещественные числа сравниваются с погрешностью.
+            double d => Math.Abs(other.AsDouble() - d) < Tolerance,
 
             // Пустые значения всегда равны.
             VoidValue => true,
