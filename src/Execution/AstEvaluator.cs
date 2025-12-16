@@ -19,7 +19,7 @@ public class AstEvaluator : IAstVisitor
         this.context = context;
     }
 
-    public decimal Evaluate(AstNode node)
+    public Value Evaluate(AstNode node)
     {
         if (values.Count > 0)
         {
@@ -38,13 +38,7 @@ public class AstEvaluator : IAstVisitor
                 throw new InvalidOperationException($"Evaluator logical error: expected 1 value, got {values.Count} values: {string.Join(", ", values)}");
 
             default:
-                Value v = values.Pop();
-                if (v == Value.Void)
-                {
-                    return 0m;
-                }
-
-                return v.AsLong();
+                return values.Pop();
         }
     }
 
@@ -283,18 +277,6 @@ public class AstEvaluator : IAstVisitor
         s.ReturnValue.Accept(this);
         values.Push(Value.Void);
         throw new ReturnException();
-    }
-
-    public void Visit(ForLoopExpression e)
-    {
-    }
-
-    public void Visit(SequenceExpression e)
-    {
-    }
-
-    public void Visit(IfElseExpression e)
-    {
     }
 
     public void Visit(ParameterDeclaration d)

@@ -22,24 +22,6 @@ public class Context
         this.nativeFunctions = new Dictionary<string, NativeFunction>
         {
             {
-                "int",
-                new(
-                    "int",
-                    [new NativeFunctionParameter("x", ValueType.Float)],
-                    ValueType.Float,
-                    args => new Value((long)args[0].AsDouble())
-                )
-            },
-            {
-                "float",
-                new(
-                    "float",
-                    [new NativeFunctionParameter("x", ValueType.Int)],
-                    ValueType.Float,
-                    args => new Value((double)args[0].AsLong())
-                )
-            },
-            {
                 "input",
                 new(
                     "input",
@@ -47,8 +29,9 @@ public class Context
                     ValueType.Int,
                     _ =>
                     {
-                        decimal d = environment.ReadDecimal() ?? throw new ArgumentException("Couldn't read decimal from stdin");
-                        return new Value((long)d);
+                        string s = environment.Input() ?? throw new ArgumentException("Couldn't read string from stdin");
+                        long l = long.Parse(s);
+                        return new Value(l);
                     }
                 )
             },
@@ -60,8 +43,14 @@ public class Context
                     ValueType.Void,
                     arguments =>
                     {
-                        environment.PrintDecimal(arguments[0].AsLong());
-                        return new Value(0L);
+                        if (arguments[0].IsDouble())
+                        {
+                            environment.Print(arguments[0].AsDouble().ToString("F2"));
+                            return Value.Void;
+                        }
+
+                        environment.Print(arguments[0].AsLong().ToString());
+                        return Value.Void;
                     }
                 )
             },

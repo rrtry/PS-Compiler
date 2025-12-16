@@ -36,7 +36,7 @@ public class Parser
         this.evaluator = new AstEvaluator(context);
     }
 
-    public List<decimal> Parse()
+    public List<string> Parse()
     {
         while (tokens.Peek().Type != TokenType.Eof)
         {

@@ -2,39 +2,40 @@
 
 using Runtime;
 
+using Xunit.Sdk;
+
 namespace Interpreter.Specs;
 
 public class InterpreterTests
 {
     [Theory]
     [MemberData(nameof(GetExamplePrograms))]
-    public void Can_interpret_simple_programs(string source, Tuple<List<decimal>, List<decimal>> tuple)
+    public void Can_interpret_simple_programs(string source, Tuple<List<string>, List<string>> tuple)
     {
-        List<decimal> programInput = tuple.Item1;
-        List<decimal> expectedOutput = tuple.Item2;
+        List<string> programInput = tuple.Item1;
+        List<string> expectedOutput = tuple.Item2;
 
         FakeEnvironment environment = new FakeEnvironment();
         Context context = new Context(environment);
         environment.SetProgramInput(programInput);
 
-        List<decimal> evaluated = environment.GetEvaluated();
+        List<string> evaluated = environment.GetEvaluated();
         Interpreter interpreter = new Interpreter(context, environment);
         interpreter.Execute(source);
 
         Assert.Equal(expectedOutput.Count, evaluated.Count);
-
         for (int i = 0; i < evaluated.Count; i++)
         {
-            if (!decimal.Equals(decimal.Round(expectedOutput[i], 2), decimal.Round(evaluated[i], 2)))
+            if (expectedOutput[i] != evaluated[i])
             {
-                throw new Xunit.Sdk.XunitException($"Expected {expectedOutput[i]} but got {evaluated[i]}");
+                throw new XunitException($"Expected: {expectedOutput[i]}, got: {evaluated[i]}");
             }
         }
     }
 
-    public static TheoryData<string, Tuple<List<decimal>, List<decimal>>> GetExamplePrograms()
+    public static TheoryData<string, Tuple<List<string>, List<string>>> GetExamplePrograms()
     {
-        return new TheoryData<string, Tuple<List<decimal>, List<decimal>>>
+        return new TheoryData<string, Tuple<List<string>, List<string>>>
         {
             /*
             {
@@ -77,9 +78,9 @@ public class InterpreterTests
                 }
                 let result = solve(x, y, z);
                 print(result);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 2m, 3m, -2m },
-                    new List<decimal> { 0.5m, -2m, 2 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { 2m, 3m, -2m },
+                    new List<string> { 0.5m, -2m, 2 }
                 )
             },
             {
@@ -107,9 +108,9 @@ public class InterpreterTests
                 }
                 print(is_prime(139));
                 ",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 1 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { 1 }
                 )
             },
             */
@@ -123,9 +124,9 @@ public class InterpreterTests
                     return fact;
                 }
                 print(factorial(5));",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 120 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "120" }
                 )
             },
             {
@@ -144,9 +145,9 @@ public class InterpreterTests
                     return curr;
                 }
                 print(fibonacci(10));",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 55 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "55" }
                 )
             },
             {
@@ -154,9 +155,9 @@ public class InterpreterTests
                   if (!i) {
                     print(!i);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 1 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "1" }
                 )
             },
             {
@@ -164,9 +165,9 @@ public class InterpreterTests
                     return a + b;
                 }
                 print(add(2, 3));",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 5 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "5" }
                 )
             },
             {
@@ -178,9 +179,9 @@ public class InterpreterTests
                       }
                       print(x);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 1, 2, 4, 5 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "1", "2", "4", "5" }
                 )
             },
             {
@@ -192,9 +193,9 @@ public class InterpreterTests
                       }
                   }
                   print(x);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 5 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "5" }
                 )
             },
             {
@@ -207,9 +208,9 @@ public class InterpreterTests
                       }
                   }
                   print(i);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 5 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "5" }
                 )
             },
             {
@@ -221,9 +222,9 @@ public class InterpreterTests
                       }
                       print(i);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 1, 2, 4, 5 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "1", "2", "4", "5" }
                 )
             },
             {
@@ -235,9 +236,9 @@ public class InterpreterTests
                   } else {
                     print(x - y);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 2 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "2" }
                 )
             },
             {
@@ -246,9 +247,9 @@ public class InterpreterTests
                   if ((x + y) == 8 && pow(2, 3) == 8) {
                       print(x + y);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 8 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "8" }
                 )
             },
             {
@@ -259,9 +260,9 @@ public class InterpreterTests
                   } else {
                     print(x - y);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 8 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "8" }
                 )
             },
             {
@@ -272,9 +273,9 @@ public class InterpreterTests
                   } else {
                       print(x - y);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 4 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "4" }
                 )
             },
             {
@@ -285,9 +286,9 @@ public class InterpreterTests
                   } else {
                       print(x - y);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 0 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "0" }
                 )
             },
             {
@@ -298,9 +299,9 @@ public class InterpreterTests
                   } else {
                       print(x - y);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 3 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "3" }
                 )
             },
             {
@@ -311,9 +312,9 @@ public class InterpreterTests
                   } else {
                       print(x - y);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { -1 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "-1" }
                 )
             },
             {
@@ -322,9 +323,9 @@ public class InterpreterTests
                   if (x > y) {
                       print(x + y);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 3 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "3" }
                 )
             },
             {
@@ -333,9 +334,9 @@ public class InterpreterTests
                   if (x < y) {
                       print(x + y);
                   }",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { }
                 )
             },
             {
@@ -343,9 +344,9 @@ public class InterpreterTests
                 "let y = 2;" +
                 "let z = y > x;" +
                 "print(z);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 1 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "1" }
                 )
             },
             {
@@ -353,9 +354,9 @@ public class InterpreterTests
                 "let y = 2;" +
                 "let z = y < x;" +
                 "print(z);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 0 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "0" }
                 )
             },
             {
@@ -363,9 +364,9 @@ public class InterpreterTests
                 "let y = 2;" +
                 "let z = y <= x;" +
                 "print(z);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 0 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "0" }
                 )
             },
             {
@@ -373,9 +374,9 @@ public class InterpreterTests
                 "let y = 2;" +
                 "let z = y >= x;" +
                 "print(z);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { },
-                    new List<decimal> { 1 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { },
+                    new List<string> { "1" }
                 )
             },
             {
@@ -383,9 +384,9 @@ public class InterpreterTests
                 "let y = input();" +
                 "let z = x != y;" +
                 "print(z);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 1, 2 },
-                    new List<decimal> { 1 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "1", "2" },
+                    new List<string> { "1" }
                 )
             },
             {
@@ -393,9 +394,9 @@ public class InterpreterTests
                 "let y = input();" +
                 "let z = x == y;" +
                 "print(z);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 1, 1 },
-                    new List<decimal> { 1 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "1", "1" },
+                    new List<string> { "1" }
                 )
             },
             {
@@ -403,9 +404,9 @@ public class InterpreterTests
                 "let y = input();" +
                 "let z = x != y && x == 0;" +
                 "print(z);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 1, 2 },
-                    new List<decimal> { 0 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "1", "2" },
+                    new List<string> { "0" }
                 )
             },
             {
@@ -413,9 +414,9 @@ public class InterpreterTests
                 "let y = input();" +
                 "let z = x != y || x == 0;" +
                 "print(z);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 1, 2 },
-                    new List<decimal> { 1 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "1", "2" },
+                    new List<string> { "1" }
                 )
             },
             {
@@ -423,18 +424,18 @@ public class InterpreterTests
                 "let y = input();" +
                 "let z = (x != y) || (x == 0);" +
                 "print(z);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 1, 2 },
-                    new List<decimal> { 1 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "1", "2" },
+                    new List<string> { "1" }
                 )
             },
             {
                 "let x = input(); " +
                 "let y = input(); " +
                 "print(x + y);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 1, 2 },
-                    new List<decimal> { 3 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "1", "2" },
+                    new List<string> { "3" }
                 )
             },
             {
@@ -442,9 +443,9 @@ public class InterpreterTests
                 "let y = input(); " +
                 "y = 3; " +
                 "print(x + y);",
-                new Tuple<List<decimal>, List<decimal>>(
-                    new List<decimal> { 1, 2 },
-                    new List<decimal> { 4 }
+                new Tuple<List<string>, List<string>>(
+                    new List<string> { "1", "2" },
+                    new List<string> { "4" }
                 )
             },
         };

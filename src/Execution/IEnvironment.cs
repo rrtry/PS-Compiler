@@ -9,15 +9,15 @@ public interface IEnvironment
     /// <summary>
     /// Список результатов выражений.
     /// </summary>
-    public List<decimal> GetEvaluated();
+    public List<string> GetEvaluated();
 
     /// <summary>
-    /// Функция чтения числа из stdin.
+    /// Функция чтения строки из stdin.
     /// </summary>
-    public decimal? ReadDecimal();
+    public string Input();
 
     /// <summary>
-    /// Функция записи в числа stdout.
+    /// Функция записи в строки stdout.
     /// </summary>
-    public void PrintDecimal(decimal result);
+    public void Print(string result);
 }

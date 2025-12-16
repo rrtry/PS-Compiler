@@ -2,33 +2,33 @@ namespace Execution;
 
 public class FakeEnvironment : IEnvironment
 {
-    private readonly List<decimal> evaluated = new List<decimal>();
+    private readonly List<string> evaluated = new List<string>();
 
     private int inputIndex = 0;
 
-    private List<decimal> programInput = new List<decimal>();
+    private List<string> programInput = new List<string>();
 
-    public decimal? ReadDecimal()
+    public string Input()
     {
         if (inputIndex >= programInput.Count)
         {
-            return null;
+            throw new EndOfStreamException();
         }
 
         return programInput[inputIndex++];
     }
 
-    public void PrintDecimal(decimal result)
+    public void Print(string result)
     {
         evaluated.Add(result);
     }
 
-    public List<decimal> GetEvaluated()
+    public List<string> GetEvaluated()
     {
         return evaluated;
     }
 
-    public void SetProgramInput(List<decimal> input)
+    public void SetProgramInput(List<string> input)
     {
         programInput = input;
     }

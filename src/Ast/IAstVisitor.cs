@@ -18,12 +18,6 @@ public interface IAstVisitor
 
     public void Visit(AssignmentExpression e);
 
-    public void Visit(SequenceExpression e);
-
-    public void Visit(IfElseExpression e);
-
-    public void Visit(ForLoopExpression e);
-
     public void Visit(WhileLoopStatement e);
 
     public void Visit(VariableDeclaration d);

@@ -2,25 +2,19 @@ namespace Execution;
 
 public class ConsoleEnvironment : IEnvironment
 {
-    private readonly List<decimal> evaluated = new List<decimal>();
+    private readonly List<string> evaluated = new List<string>();
 
-    public List<decimal> GetEvaluated()
+    public List<string> GetEvaluated()
     {
         return evaluated;
     }
 
-    public decimal? ReadDecimal()
+    public string Input()
     {
-        string? line = Console.ReadLine();
-        if (line == null)
-        {
-            return null;
-        }
-
-        return decimal.Parse(line);
+        return Console.ReadLine() ?? throw new EndOfStreamException();
     }
 
-    public void PrintDecimal(decimal result)
+    public void Print(string result)
     {
         evaluated.Add(result);
         Console.WriteLine(result);
