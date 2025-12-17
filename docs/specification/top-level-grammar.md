@@ -95,7 +95,7 @@ block            = "{" , { statement } , "}" ;
 
 ## 6. Инструкции
 
-```
+```ebnf
 statement =
     variable_declaration , ";"
   | assignment           , ";"
@@ -114,7 +114,7 @@ statement =
 
 *initializer может быть выражением для числовых типов, или строковым литералом / string-специфичной конструкцией для string.*
 
-```
+```ebnf
 variable_declaration = "let" , identifier , [ ":" , type ] , [ "=" , initializer ] ;
 
 initializer =
@@ -128,7 +128,7 @@ initializer =
 
 ### Присваивание
 
-```
+```ebnf
 assignment = identifier , "=" , ( numeric_expression | string_expression ) ;
 ```
 
@@ -137,7 +137,7 @@ assignment = identifier , "=" , ( numeric_expression | string_expression ) ;
 
 ### Вызов функции
 
-```
+```ebnf
 function_call = identifier , "(" , [ argument_list ] , ")" ;
 
 argument_list = argument , { "," , argument } ;
@@ -150,7 +150,7 @@ argument =
 
 ### Возврат из функции
 
-```
+```ebnf
 return_statement = "return" , [ return_value ] , ";" ;
 
 return_value =
@@ -162,7 +162,7 @@ return_value =
 
 ### Ветвление if-else
 
-```
+```ebnf
 if_statement =
     "if" , "(" , numeric_expression , ")" , block ,
     { "else" , "if" , "(" , numeric_expression , ")" , block } ,
@@ -173,14 +173,14 @@ if_statement =
 
 ### Цикл while
 
-```
+```ebnf
 while_statement =
     "while" , "(" , numeric_expression , ")" , block ;
 ```
 
 ### Цикл for
 
-```
+```ebnf
 for_statement =
     "for" , "(" ,[ init ] , ";" , [ numeric_expression ] , ";" , [ update ] , ")" , block ;
 
