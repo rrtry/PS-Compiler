@@ -18,7 +18,7 @@ print(sum);
 ``` 
 
 ## 2. Ключевые особенности языка
-- Язык динамически типизированный — тип переменной определяется по значению, но в объявлениях параметров функций и переменных указываются ожидаемые типы (int, float) для проверки совместимости.  
+- Язык статически типизированный — тип переменной определяется по значению, но в объявлениях параметров функций и переменных указываются ожидаемые типы (int, float) для проверки совместимости.  
 - Все переменные изменяемые (mutable).  
 - Переменные объявляются через `let` с необязательным указанием типа .  
 - Ввод и вывод реализуются встроенными функциями `input()` и `print()`.  
@@ -69,12 +69,12 @@ x + 10;    // Ошибка — выражение ничего не делает
 |-----|--------|------------|
 | Объявление переменной | `let x = 10;` | Создаёт новую переменную (с возможным начальными значением) |
 | Присваивание | `x = x + 1;` | Изменяет значение существующей переменной |
-| Ввод | `input(x);` | Считывает значение с клавиатуры и сохраняет в переменную |
-| Вывод | `print("x);` | Выводит  значения на экран |
+| Ввод | `input();` | Считывает значение с клавиатуры и сохраняет в переменную |
+| Вывод | `print(x);` | Выводит  значения на экран |
 | Возврат | `return x;` | Завершает выполнение функции, возвращая значение |
 | Ветвление | `if (cond) { ... } else if(cond) {...} else { ... }` | Условное выполнение |
 | Цикл while | `while (cond) { ... }` | Цикл с условием | 
-| Цикл for | `for (init, cond, update) { ... }` | Цикл с итерацией по диапазону значений |
+| Цикл for | `for (init; cond; update) { ... }` | Цикл с итерацией по диапазону значений |
 | Break | `break;` | Прерывание цикла |
 | Continue | `continue;` | Пропуск тела до следующей итерации |
 
@@ -95,7 +95,7 @@ block            = "{" , { statement } , "}" ;
 
 ## 6. Инструкции
 
-```
+```ebnf
 statement =
     variable_declaration , ";"
   | assignment           , ";"
@@ -114,7 +114,7 @@ statement =
 
 *initializer может быть выражением для числовых типов, или строковым литералом / string-специфичной конструкцией для string.*
 
-```
+```ebnf
 variable_declaration = "let" , identifier , [ ":" , type ] , [ "=" , initializer ] ;
 
 initializer =
@@ -128,7 +128,7 @@ initializer =
 
 ### Присваивание
 
-```
+```ebnf
 assignment = identifier , "=" , ( numeric_expression | string_expression ) ;
 ```
 
@@ -137,7 +137,7 @@ assignment = identifier , "=" , ( numeric_expression | string_expression ) ;
 
 ### Вызов функции
 
-```
+```ebnf
 function_call = identifier , "(" , [ argument_list ] , ")" ;
 
 argument_list = argument , { "," , argument } ;
@@ -150,7 +150,7 @@ argument =
 
 ### Возврат из функции
 
-```
+```ebnf
 return_statement = "return" , [ return_value ] , ";" ;
 
 return_value =
@@ -162,7 +162,7 @@ return_value =
 
 ### Ветвление if-else
 
-```
+```ebnf
 if_statement =
     "if" , "(" , numeric_expression , ")" , block ,
     { "else" , "if" , "(" , numeric_expression , ")" , block } ,
@@ -173,14 +173,14 @@ if_statement =
 
 ### Цикл while
 
-```
+```ebnf
 while_statement =
     "while" , "(" , numeric_expression , ")" , block ;
 ```
 
 ### Цикл for
 
-```
+```ebnf
 for_statement =
     "for" , "(" ,[ init ] , ";" , [ numeric_expression ] , ";" , [ update ] , ")" , block ;
 
