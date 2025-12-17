@@ -8,7 +8,7 @@ namespace Ast.Declarations;
 /// </summary>
 public sealed class FunctionDeclaration : AbstractFunctionDeclaration
 {
-    private AstAttribute<AbstractTypeDeclaration?> _declaredType;
+    private AstAttribute<AbstractTypeDeclaration?> declaredType;
 
     public FunctionDeclaration(
         string name,
@@ -26,8 +26,8 @@ public sealed class FunctionDeclaration : AbstractFunctionDeclaration
 
     public AbstractTypeDeclaration? DeclaredType
     {
-        get => _declaredType.Get();
-        set => _declaredType.Set(value);
+        get => declaredType.Get();
+        set => declaredType.Set(value);
     }
 
     public BlockStatement Body { get; }

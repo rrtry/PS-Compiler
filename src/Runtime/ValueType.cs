@@ -29,11 +29,11 @@ public class ValueType
     /// </summary>
     public static readonly ValueType Nil = new("nil");
 
-    private readonly string _name;
+    private readonly string name;
 
     protected ValueType(string name)
     {
-        _name = name;
+        this.name = name;
     }
 
     public static bool operator ==(ValueType a, ValueType b) => a.Equals(b);
@@ -52,6 +52,6 @@ public class ValueType
 
     public override string ToString()
     {
-        return _name;
+        return name;
     }
 }

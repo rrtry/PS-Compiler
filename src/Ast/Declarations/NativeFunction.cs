@@ -9,7 +9,7 @@ namespace Ast.Declarations;
 /// </summary>
 public sealed class NativeFunction : AbstractFunctionDeclaration
 {
-    private readonly Func<IReadOnlyList<Value>, Value> _implementation;
+    private readonly Func<IReadOnlyList<Value>, Value> implementation;
 
     public NativeFunction(
         string name,
@@ -20,12 +20,12 @@ public sealed class NativeFunction : AbstractFunctionDeclaration
         : base(name, parameters)
     {
         ResultType = resultType;
-        _implementation = implementation;
+        this.implementation = implementation;
     }
 
     public Value Invoke(IReadOnlyList<Value> arguments)
     {
-        return _implementation(arguments);
+        return implementation(arguments);
     }
 
     public override void Accept(IAstVisitor visitor)

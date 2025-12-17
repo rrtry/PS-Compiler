@@ -309,9 +309,9 @@ public class Context
     {
         foreach (Scope s in scopes)
         {
-            if (s.TryGetVariable(name, out Value variable))
+            if (s.TryGetVariable(name, out Value? variable))
             {
-                return variable;
+                return variable!;
             }
         }
 

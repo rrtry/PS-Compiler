@@ -9,7 +9,7 @@ namespace Runtime;
 /// int    - целое число (int64_t).
 /// float  - вещественное число (double).
 /// string - UTF-8 строка.
-/// void   - отсуствие возвращаемого типа у функции. 
+/// void   - отсуствие возвращаемого типа у функции.
 /// nul    - значение по умолчанию при отсутствии инициализации.
 /// </summary>
 public class Value : IEquatable<Value>
@@ -17,32 +17,32 @@ public class Value : IEquatable<Value>
     public const double Tolerance = 0.001d;
     public static readonly Value Void = new(VoidValue.Value);
     public static readonly Value Nil = new(NilValue.Value);
-    private readonly object _value;
+    private readonly object value;
 
     /// <summary>
     /// Создаёт строковое значение.
     /// </summary>
-    public Value(string value)
+    public Value(string v)
     {
-        _value = value;
+        value = v;
     }
 
     /// <summary>
     /// Создаёт целочисленное значение.
     /// </summary>
-    public Value(long value)
+    public Value(long v)
     {
-        _value = value;
+        value = v;
     }
 
-    public Value(double value)
+    public Value(double v)
     {
-        _value = value;
+        value = v;
     }
 
-    private Value(object value)
+    private Value(object v)
     {
-        _value = value;
+        value = v;
     }
 
     public bool IsNumeric()
@@ -52,7 +52,7 @@ public class Value : IEquatable<Value>
 
     public bool IsDouble()
     {
-        return _value switch
+        return value switch
         {
             double => true,
             _ => false
@@ -61,11 +61,11 @@ public class Value : IEquatable<Value>
 
     public double AsDouble()
     {
-        return _value switch
+        return value switch
         {
             double d => d,
             long l => l,
-            _ => throw new InvalidOperationException($"Value {_value} is not a double"),
+            _ => throw new InvalidOperationException($"Value {value} is not a double"),
         };
     }
 
@@ -74,7 +74,7 @@ public class Value : IEquatable<Value>
     /// </summary>
     public bool IsString()
     {
-        return _value switch
+        return value switch
         {
             string => true,
             _ => false,
@@ -86,10 +86,10 @@ public class Value : IEquatable<Value>
     /// </summary>
     public string AsString()
     {
-        return _value switch
+        return value switch
         {
             string s => s,
-            _ => throw new InvalidOperationException($"Value {_value} is not a string"),
+            _ => throw new InvalidOperationException($"Value {value} is not a string"),
         };
     }
 
@@ -98,7 +98,7 @@ public class Value : IEquatable<Value>
     /// </summary>
     public bool IsLong()
     {
-        return _value switch
+        return value switch
         {
             long => true,
             _ => false,
@@ -110,10 +110,10 @@ public class Value : IEquatable<Value>
     /// </summary>
     public long AsLong()
     {
-        return _value switch
+        return value switch
         {
             long i => i,
-            _ => throw new InvalidOperationException($"Value {_value} is not numeric"),
+            _ => throw new InvalidOperationException($"Value {value} is not numeric"),
         };
     }
 
@@ -122,7 +122,7 @@ public class Value : IEquatable<Value>
     /// </summary>
     public override string ToString()
     {
-        return _value switch
+        return value switch
         {
             string s => ValueUtil.EscapeStringValue(s),
             long i => i.ToString(CultureInfo.InvariantCulture),
@@ -130,7 +130,7 @@ public class Value : IEquatable<Value>
 
             VoidValue v => v.ToString(),
             NilValue v => v.ToString(),
-            _ => throw new InvalidOperationException($"Unexpected value {_value} of type {_value.GetType()}"),
+            _ => throw new InvalidOperationException($"Unexpected value {value} of type {value.GetType()}"),
         };
     }
 
@@ -144,7 +144,7 @@ public class Value : IEquatable<Value>
             return false;
         }
 
-        return _value switch
+        return value switch
         {
             // Строки сравниваются посимвольно.
             string s => other.AsString() == s,
@@ -159,7 +159,7 @@ public class Value : IEquatable<Value>
             VoidValue => true,
 
             // Несуществующая структура равна сама себе и не равна никаким другим.
-            NilValue => other._value is NilValue,
+            NilValue => other.value is NilValue,
 
             _ => throw new NotImplementedException(),
         };
@@ -172,6 +172,6 @@ public class Value : IEquatable<Value>
 
     public override int GetHashCode()
     {
-        return _value.GetHashCode();
+        return value.GetHashCode();
     }
 }

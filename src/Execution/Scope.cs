@@ -9,9 +9,9 @@ public class Scope
     /// Читает переменную из этой области видимости.
     /// Возвращает false, если переменная не объявлена в этой области видимости.
     /// </summary>
-    public bool TryGetVariable(string name, out Value value)
+    public bool TryGetVariable(string name, out Value? value)
     {
-        if (variables.TryGetValue(name, out Value defined))
+        if (variables.TryGetValue(name, out Value? defined))
         {
             value = defined;
             return true;

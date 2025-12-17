@@ -1,6 +1,7 @@
 namespace Semantics.Exceptions;
 
-#pragma warning disable RCS1194 // Конструкторы исключения не нужны, т.к. это не класс общего назначения.
+#pragma warning disable RCS1194
+
 /// <summary>
 /// Исключение из-за некорректного использования символа (функции, переменной, типа).
 /// </summary>

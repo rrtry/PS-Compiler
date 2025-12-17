@@ -106,7 +106,6 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(FunctionCallExpression e)
     {
-        //e.Function = context.TryGetFunction(e.Name);
         switch (e.Function)
         {
             case NativeFunction nativeFunction:

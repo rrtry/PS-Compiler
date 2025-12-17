@@ -1,33 +1,32 @@
-﻿using Xunit.Sdk;
+﻿namespace Parser.UnitTests;
 
-namespace Parser.UnitTests;
+using Execution;
+using Interpreter;
+using Xunit.Sdk;
 
 public class ParserTests
 {
     [Theory]
+    [MemberData(nameof(GetExamplePrograms))]
     [MemberData(nameof(GetNumberLiterals))]
     [MemberData(nameof(GetExpressions))]
     [MemberData(nameof(GetFunctionCalls))]
-    public void Can_parse_statements(string source, List<string> expected)
-    {
-        Parser p = new Parser(source);
-        List<string> evaluated = p.Eval();
-        Assert.Equal(expected, evaluated);
-    }
-
-    [Theory]
-    [MemberData(nameof(GetExamplePrograms))]
     public void Can_interpret_simple_programs(string source, List<string> expected)
     {
-        Parser p = new Parser(source);
-        List<string> evaluated = p.Eval();
-        Assert.Equal(expected.Count, evaluated.Count);
+        List<string> expectedOutput = expected;
+        FakeEnvironment environment = new FakeEnvironment();
+        Context context = new Context(environment);
 
+        List<string> evaluated = environment.GetEvaluated();
+        Interpreter interpreter = new Interpreter(context, environment);
+        interpreter.Execute(source);
+
+        Assert.Equal(expectedOutput.Count, evaluated.Count);
         for (int i = 0; i < evaluated.Count; i++)
         {
-            if (expected[i] != evaluated[i])
+            if (expectedOutput[i] != evaluated[i])
             {
-                throw new XunitException($"Expected {expected[i]} but got {evaluated[i]}");
+                throw new XunitException($"Expected: {expectedOutput[i]}, got: {evaluated[i]}");
             }
         }
     }
@@ -53,15 +52,15 @@ public class ParserTests
                 "let x = 2; " +
                 "let y = 2; " +
                 "let z = x + y;" +
-                "let result = sqrt(z); " +
-                "print(result);",
+                "let result = sqrt(itof(z)); " +
+                "printf(result, 2);",
                 new List<string> { "2.00" }
             },
             {
                 "let PI = 3.14159265358979323846; " +
                 "let radius = 10; " +
                 "let area = (radius ^ 2) * PI; " +
-                "print(area);",
+                "printf(area, 2);",
                 new List<string> { "314.16" }
             },
         };
@@ -128,7 +127,7 @@ public class ParserTests
             { "print(42);",       new List<string> { "42" } },
             { "print(0x2a);",     new List<string> { "42" } },
             { "print(0b101010);", new List<string> { "42" } },
-            { "print(3.14);",     new List<string> { "3.14" } },
+            { "printf(3.14, 2);",     new List<string> { "3.14" } },
             { "print(-(-42));",   new List<string> { "42" } },
             { "print(+(-42));",   new List<string> { "-42" } },
         };

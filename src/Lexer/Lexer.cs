@@ -53,9 +53,8 @@ public class Lexer
         { "true",     TokenType.True },
         { "false",    TokenType.False },
         { "null",     TokenType.Null },
-        /*
         { "input",    TokenType.Input },
-        { "print",    TokenType.Print }, */
+        { "print",    TokenType.Print },
         { "import",   TokenType.Import },
     };
 

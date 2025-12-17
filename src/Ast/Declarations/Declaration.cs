@@ -8,15 +8,15 @@ using Ast.Attributes;
 /// </summary>
 public abstract class Declaration : AstNode
 {
-    private AstAttribute<ValueType> _resultType;
+    private AstAttribute<ValueType> resultType;
 
     /// <summary>
     /// Тип результата объявления.
     /// </summary>
     public ValueType ResultType
     {
-        get => _resultType.Get();
+        get => resultType.Get();
 
-        set => _resultType.Set(value);
+        set => resultType.Set(value);
     }
 }

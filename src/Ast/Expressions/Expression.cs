@@ -6,15 +6,15 @@ namespace Ast.Expressions;
 
 public abstract class Expression : AstNode
 {
-    private AstAttribute<ValueType> _resultType;
+    private AstAttribute<ValueType> resultType;
 
     /// <summary>
     /// Тип результата выражения.
     /// </summary>
     public ValueType ResultType
     {
-        get => _resultType.Get();
+        get => resultType.Get();
 
-        set => _resultType.Set(value);
+        set => resultType.Set(value);
     }
 }

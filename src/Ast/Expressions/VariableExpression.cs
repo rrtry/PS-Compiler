@@ -8,7 +8,7 @@ namespace Ast.Expressions;
 /// </summary>
 public sealed class VariableExpression : Expression
 {
-    private AstAttribute<AbstractVariableDeclaration> _variable;
+    private AstAttribute<AbstractVariableDeclaration> variable;
 
     public VariableExpression(string name)
     {
@@ -19,8 +19,8 @@ public sealed class VariableExpression : Expression
 
     public AbstractVariableDeclaration Variable
     {
-        get => _variable.Get();
-        set => _variable.Set(value);
+        get => variable.Get();
+        set => variable.Set(value);
     }
 
     public override void Accept(IAstVisitor visitor)

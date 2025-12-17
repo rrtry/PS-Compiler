@@ -16,12 +16,12 @@ namespace Semantics.Passes;
 public sealed class CheckContextSensitiveRulesPass : AbstractPass
 {
     // Стек контекстов выражений используется для проверки контекстно-зависимых правил.
-    private readonly Stack<ExpressionContext> _expressionContextStack;
+    private readonly Stack<ExpressionContext> expressionContextStack;
 
     public CheckContextSensitiveRulesPass()
     {
-        _expressionContextStack = [];
-        _expressionContextStack.Push(ExpressionContext.Default);
+        expressionContextStack = [];
+        expressionContextStack.Push(ExpressionContext.Default);
     }
 
     private enum ExpressionContext
@@ -58,47 +58,47 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
 
     public override void Visit(FunctionDeclaration d)
     {
-        _expressionContextStack.Push(ExpressionContext.InsideFunction);
+        expressionContextStack.Push(ExpressionContext.InsideFunction);
         try
         {
             base.Visit(d);
         }
         finally
         {
-            _expressionContextStack.Pop();
+            expressionContextStack.Pop();
         }
     }
 
     public override void Visit(WhileLoopStatement e)
     {
-        _expressionContextStack.Push(ExpressionContext.InsideLoop);
+        expressionContextStack.Push(ExpressionContext.InsideLoop);
         try
         {
             base.Visit(e);
         }
         finally
         {
-            _expressionContextStack.Pop();
+            expressionContextStack.Pop();
         }
     }
 
     public override void Visit(ForLoopStatement e)
     {
-        _expressionContextStack.Push(ExpressionContext.InsideLoop);
+        expressionContextStack.Push(ExpressionContext.InsideLoop);
         try
         {
             base.Visit(e);
         }
         finally
         {
-            _expressionContextStack.Pop();
+            expressionContextStack.Pop();
         }
     }
 
     public override void Visit(ContinueLoopStatement e)
     {
         base.Visit(e);
-        if (_expressionContextStack.Peek() != ExpressionContext.InsideLoop)
+        if (expressionContextStack.Peek() != ExpressionContext.InsideLoop)
         {
             throw new InvalidExpressionException("The \"continue\" expression is allowed only inside the loop");
         }
@@ -107,7 +107,7 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     public override void Visit(BreakLoopStatement e)
     {
         base.Visit(e);
-        if (_expressionContextStack.Peek() != ExpressionContext.InsideLoop)
+        if (expressionContextStack.Peek() != ExpressionContext.InsideLoop)
         {
             throw new InvalidExpressionException("The \"break\" expression is allowed only inside the loop");
         }
@@ -116,9 +116,9 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
     public override void Visit(ReturnStatement e)
     {
         base.Visit(e);
-        if (_expressionContextStack.Peek() != ExpressionContext.InsideFunction)
+        if (expressionContextStack.Peek() != ExpressionContext.InsideFunction)
         {
-            List<ExpressionContext> contextList = _expressionContextStack.ToList();
+            List<ExpressionContext> contextList = expressionContextStack.ToList();
             ExpressionContext outerContext = ExpressionContext.Default;
 
             foreach (ExpressionContext context in contextList)

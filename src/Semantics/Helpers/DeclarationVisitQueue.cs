@@ -13,15 +13,15 @@ namespace Semantics.Helpers;
 /// </remarks>
 public class DeclarationVisitQueue
 {
-    private readonly IAstVisitor _visitor;
-    private readonly Queue<Declaration> _visitQueue;
-    private VisitQueueType _visitQueueType;
+    private readonly IAstVisitor visitor;
+    private readonly Queue<Declaration> visitQueue;
+    private VisitQueueType visitQueueType;
 
     public DeclarationVisitQueue(IAstVisitor visitor)
     {
-        _visitor = visitor;
-        _visitQueue = [];
-        _visitQueueType = VisitQueueType.None;
+        this.visitor = visitor;
+        visitQueue = [];
+        visitQueueType = VisitQueueType.None;
     }
 
     private enum VisitQueueType
@@ -48,30 +48,30 @@ public class DeclarationVisitQueue
 
     public void Enqueue(Declaration declaration)
     {
-        if (_visitQueueType != VisitQueueType.None)
+        if (visitQueueType != VisitQueueType.None)
         {
-            _visitQueue.Enqueue(declaration);
+            visitQueue.Enqueue(declaration);
         }
         else
         {
-            declaration.Accept(_visitor);
+            declaration.Accept(visitor);
         }
     }
 
     private void UpdateVisitQueueType(VisitQueueType type)
     {
-        if (_visitQueueType != type)
+        if (visitQueueType != type)
         {
             ProcessVisitQueue();
-            _visitQueueType = type;
+            visitQueueType = type;
         }
     }
 
     private void ProcessVisitQueue()
     {
-        while (_visitQueue.TryDequeue(out Declaration? declaration))
+        while (visitQueue.TryDequeue(out Declaration? declaration))
         {
-            declaration.Accept(_visitor);
+            declaration.Accept(visitor);
         }
     }
 }

@@ -5,7 +5,6 @@ using Ast.Expressions;
 
 public sealed class IfElseStatement : Statement
 {
-
     public IfElseStatement(Expression condition, BlockStatement thenBranch, BlockStatement? elseBranch)
     {
         Condition = condition;

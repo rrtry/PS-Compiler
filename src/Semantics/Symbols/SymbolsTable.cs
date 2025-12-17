@@ -10,23 +10,23 @@ namespace Semantics.Symbols;
 /// </summary>
 public sealed class SymbolsTable
 {
-    private readonly SymbolsTable? _parent;
+    private readonly SymbolsTable? parent;
 
-    private readonly Dictionary<string, Declaration> _variablesAndFunctions;
-    private readonly Dictionary<string, Declaration> _types;
+    private readonly Dictionary<string, Declaration> variablesAndFunctions;
+    private readonly Dictionary<string, Declaration> types;
 
     public SymbolsTable(SymbolsTable? parent)
     {
-        _parent = parent;
-        _variablesAndFunctions = [];
-        _types = [];
+        this.parent = parent;
+        variablesAndFunctions = [];
+        types = [];
     }
 
-    public SymbolsTable? Parent => _parent;
+    public SymbolsTable? Parent => parent;
 
     public AbstractVariableDeclaration GetVariableDeclaration(string name)
     {
-        Declaration? declaration = FindDeclaration(table => table._variablesAndFunctions, name);
+        Declaration? declaration = FindDeclaration(table => table.variablesAndFunctions, name);
         return declaration switch
         {
             AbstractVariableDeclaration variable => variable,
@@ -38,7 +38,7 @@ public sealed class SymbolsTable
 
     public AbstractFunctionDeclaration GetFunctionDeclaration(string name)
     {
-        Declaration? declaration = FindDeclaration(table => table._variablesAndFunctions, name);
+        Declaration? declaration = FindDeclaration(table => table.variablesAndFunctions, name);
         return declaration switch
         {
             AbstractFunctionDeclaration function => function,
@@ -50,7 +50,7 @@ public sealed class SymbolsTable
 
     public AbstractTypeDeclaration GetTypeDeclaration(string name)
     {
-        Declaration? declaration = FindDeclaration(table => table._types, name);
+        Declaration? declaration = FindDeclaration(table => table.types, name);
         if (declaration is null)
         {
             throw UnknownSymbolException.UndefinedType(name);
@@ -61,7 +61,7 @@ public sealed class SymbolsTable
 
     public void DeclareVariable(AbstractVariableDeclaration symbol)
     {
-        if (!_variablesAndFunctions.TryAdd(symbol.Name, symbol))
+        if (!variablesAndFunctions.TryAdd(symbol.Name, symbol))
         {
             throw DuplicateSymbolException.DuplicateVariableOrFunction(symbol.Name);
         }
@@ -69,7 +69,7 @@ public sealed class SymbolsTable
 
     public void DeclareFunction(AbstractFunctionDeclaration symbol)
     {
-        if (!_variablesAndFunctions.TryAdd(symbol.Name, symbol))
+        if (!variablesAndFunctions.TryAdd(symbol.Name, symbol))
         {
             throw DuplicateSymbolException.DuplicateVariableOrFunction(symbol.Name);
         }
@@ -77,7 +77,7 @@ public sealed class SymbolsTable
 
     public void DeclareType(AbstractTypeDeclaration symbol)
     {
-        if (!_types.TryAdd(symbol.Name, symbol))
+        if (!types.TryAdd(symbol.Name, symbol))
         {
             throw DuplicateSymbolException.DuplicateType(symbol.Name);
         }
@@ -90,6 +90,6 @@ public sealed class SymbolsTable
             return declaration;
         }
 
-        return _parent?.FindDeclaration(getTable, name);
+        return parent?.FindDeclaration(getTable, name);
     }
 }

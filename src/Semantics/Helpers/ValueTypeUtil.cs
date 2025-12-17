@@ -6,7 +6,6 @@ namespace Semantics.Helpers;
 
 public static class ValueTypeUtil
 {
-
     public static bool AreNumeric(ValueType a, ValueType b)
     {
         return (a == ValueType.Int || a == ValueType.Float) &&

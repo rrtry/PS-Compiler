@@ -12,7 +12,7 @@ namespace Semantics;
 /// </summary>
 public class SemanticsChecker
 {
-    private readonly AbstractPass[] _passes;
+    private readonly AbstractPass[] passes;
 
     public SemanticsChecker(
         IReadOnlyList<NativeFunction> builtinFunctions,
@@ -30,7 +30,7 @@ public class SemanticsChecker
             globalSymbols.DeclareType(type);
         }
 
-        _passes =
+        passes =
         [
             new ResolveNamesPass(globalSymbols),
             new CheckContextSensitiveRulesPass(),
@@ -41,7 +41,7 @@ public class SemanticsChecker
 
     public void Check(AstNode program)
     {
-        foreach (AbstractPass pass in _passes)
+        foreach (AbstractPass pass in passes)
         {
             program.Accept(pass);
         }

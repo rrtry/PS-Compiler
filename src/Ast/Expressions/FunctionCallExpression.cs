@@ -8,7 +8,7 @@ namespace Ast.Expressions;
 /// </summary>
 public class FunctionCallExpression : Expression
 {
-    private AstAttribute<AbstractFunctionDeclaration> _function;
+    private AstAttribute<AbstractFunctionDeclaration> function;
 
     public FunctionCallExpression(string name, IReadOnlyList<Expression> arguments)
     {
@@ -20,8 +20,8 @@ public class FunctionCallExpression : Expression
 
     public AbstractFunctionDeclaration Function
     {
-        get => _function.Get();
-        set => _function.Set(value);
+        get => function.Get();
+        set => function.Set(value);
     }
 
     public IReadOnlyList<Expression> Arguments { get; }

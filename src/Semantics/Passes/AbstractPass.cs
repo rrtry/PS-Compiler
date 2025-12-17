@@ -10,7 +10,6 @@ namespace Semantics.Passes;
 /// </summary>
 public abstract class AbstractPass : IAstVisitor
 {
-
     public virtual void Visit(BinaryOperationExpression e)
     {
         e.Left.Accept(this);

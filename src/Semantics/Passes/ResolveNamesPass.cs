@@ -16,39 +16,39 @@ public sealed class ResolveNamesPass : AbstractPass
     /// <summary>
     /// В таблицу символов складываются объявления.
     /// </summary>
-    private SymbolsTable _symbols;
+    private SymbolsTable symbols;
 
     public ResolveNamesPass(SymbolsTable globalSymbols)
     {
-        _symbols = globalSymbols;
+        symbols = globalSymbols;
     }
 
     public override void Visit(FunctionCallExpression e)
     {
         base.Visit(e);
-        e.Function = _symbols.GetFunctionDeclaration(e.Name);
+        e.Function = symbols.GetFunctionDeclaration(e.Name);
     }
 
     public override void Visit(VariableExpression e)
     {
         base.Visit(e);
-        e.Variable = _symbols.GetVariableDeclaration(e.Name);
+        e.Variable = symbols.GetVariableDeclaration(e.Name);
     }
 
     public override void Visit(VariableDeclaration d)
     {
         base.Visit(d);
-        d.DeclaredType = d.DeclaredTypeName != null ? _symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
-        _symbols.DeclareVariable(d);
+        d.DeclaredType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
+        symbols.DeclareVariable(d);
     }
 
     public override void Visit(FunctionDeclaration d)
     {
-        d.ResultType = d.DeclaredTypeName != null ? _symbols.GetTypeDeclaration(d.DeclaredTypeName).ResultType : _symbols.GetTypeDeclaration("void").ResultType;
-        d.DeclaredType = d.DeclaredTypeName != null ? _symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
+        d.ResultType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName).ResultType : symbols.GetTypeDeclaration("void").ResultType;
+        d.DeclaredType = d.DeclaredTypeName != null ? symbols.GetTypeDeclaration(d.DeclaredTypeName) : null;
 
-        _symbols.DeclareFunction(d);
-        _symbols = new SymbolsTable(_symbols);
+        symbols.DeclareFunction(d);
+        symbols = new SymbolsTable(symbols);
 
         try
         {
@@ -56,46 +56,46 @@ public sealed class ResolveNamesPass : AbstractPass
         }
         finally
         {
-            _symbols = _symbols.Parent!;
+            symbols = symbols.Parent!;
         }
     }
 
     public override void Visit(ParameterDeclaration d)
     {
         base.Visit(d);
-        d.Type = _symbols.GetTypeDeclaration(d.TypeName);
-        _symbols.DeclareVariable(d);
+        d.Type = symbols.GetTypeDeclaration(d.TypeName);
+        symbols.DeclareVariable(d);
     }
 
     public override void Visit(IfElseStatement e)
     {
-        _symbols = new SymbolsTable(_symbols);
+        symbols = new SymbolsTable(symbols);
         try
         {
             base.Visit(e);
         }
         finally
         {
-            _symbols = _symbols.Parent!;
+            symbols = symbols.Parent!;
         }
     }
 
     public override void Visit(ForLoopStatement e)
     {
-        _symbols = new SymbolsTable(_symbols);
+        symbols = new SymbolsTable(symbols);
         try
         {
             base.Visit(e);
         }
         finally
         {
-            _symbols = _symbols.Parent!;
+            symbols = symbols.Parent!;
         }
     }
 
     public override void Visit(ForLoopIteratorDeclaration d)
     {
         base.Visit(d);
-        _symbols.DeclareVariable(d);
+        symbols.DeclareVariable(d);
     }
 }

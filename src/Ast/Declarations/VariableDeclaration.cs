@@ -11,7 +11,7 @@ namespace Ast.Declarations;
 /// </summary>
 public sealed class VariableDeclaration : AbstractVariableDeclaration
 {
-    private AstAttribute<AbstractTypeDeclaration?> _declaredType;
+    private AstAttribute<AbstractTypeDeclaration?> declaredType;
 
     public VariableDeclaration(string name, string? declaredTypeName, Expression initialValue)
         : base(name)
@@ -26,8 +26,8 @@ public sealed class VariableDeclaration : AbstractVariableDeclaration
 
     public AbstractTypeDeclaration? DeclaredType
     {
-        get => _declaredType.Get();
-        set => _declaredType.Set(value);
+        get => declaredType.Get();
+        set => declaredType.Set(value);
     }
 
     public override void Accept(IAstVisitor visitor)

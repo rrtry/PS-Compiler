@@ -9,7 +9,7 @@ namespace Ast.Declarations;
 /// </summary>
 public class ParameterDeclaration : AbstractParameterDeclaration
 {
-    private AstAttribute<AbstractTypeDeclaration?> _declaredType;
+    private AstAttribute<AbstractTypeDeclaration?> declaredType;
 
     public ParameterDeclaration(string name, string typeName)
         : base(name)
@@ -21,10 +21,10 @@ public class ParameterDeclaration : AbstractParameterDeclaration
 
     public AbstractTypeDeclaration Type
     {
-        get => _declaredType.Get() ?? throw new InvalidOperationException(
+        get => declaredType.Get() ?? throw new InvalidOperationException(
             $"No declaration for parameter type {this.TypeName}"
         );
-        set => _declaredType.Set(value);
+        set => declaredType.Set(value);
     }
 
     public override void Accept(IAstVisitor visitor)
