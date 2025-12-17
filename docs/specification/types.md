@@ -151,7 +151,7 @@
 -   Конкатенация --- `concat(a, b)`
 -   Подстрока --- `substr(a, start, length)`
 -   Сравнение по Unicode‑кодам символов
--   Не является выражением
+-   Отдельный класс выражений, не входящий в числовое дерево выражений
 
 ------------------------------------------------------------------------
 
@@ -201,7 +201,7 @@ fn main()
 {
     print("Введите числа (0 — выход):");
     let x = true;
-    while (x = true) 
+    while (x == true) 
     {
         let n: int;
         n = int(input());
@@ -262,7 +262,7 @@ fn count_vowels(s: string): int
 
     while (ch != "\n") 
     {
-        if (is_vowel(ch) = true) 
+        if (is_vowel(ch) == true) 
         {
             count++;
         }
@@ -275,7 +275,7 @@ fn count_vowels(s: string): int
 fn main()
 {
     let text: string;
-    input(text);
+    text = input();
 
     let vowels = count_vowels(text);
     print(str(vowels));
