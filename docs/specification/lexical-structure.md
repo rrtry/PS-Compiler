@@ -151,7 +151,7 @@ let c = "Helloy: \t word";
    комментарий */
 ```
 
-```
+```ebnf
 (* Идентификаторы *)
 identifier      = letter, { letter | digit | "_" } ;
 
