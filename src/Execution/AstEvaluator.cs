@@ -106,7 +106,7 @@ public class AstEvaluator : IAstVisitor
 
     public void Visit(FunctionCallExpression e)
     {
-        e.Function = context.TryGetFunction(e.Name);
+        //e.Function = context.TryGetFunction(e.Name);
         switch (e.Function)
         {
             case NativeFunction nativeFunction:
@@ -178,7 +178,7 @@ public class AstEvaluator : IAstVisitor
             e.StartValue.Accept(this);
             long iteratorValue = values.Pop().AsLong();
 
-            context.AssignVariable(e.IteratorName, new Value(iteratorValue)); // Changed: DefineVariable -> AssignVariable
+            context.AssignVariable(e.Iterator.Name, new Value(iteratorValue)); // Changed: DefineVariable -> AssignVariable
             values.Push(Value.Void);
 
             while (true)
@@ -256,7 +256,7 @@ public class AstEvaluator : IAstVisitor
         context.DefineVariable(d.Name, value);
     }
 
-    public void Visit(AbstractFunctionDeclaration d)
+    public void Visit(FunctionDeclaration d)
     {
         values.Push(Value.Void);
         context.DefineFunction(d);
@@ -282,6 +282,10 @@ public class AstEvaluator : IAstVisitor
     }
 
     public void Visit(ParameterDeclaration d)
+    {
+    }
+
+    public void Visit(ForLoopIteratorDeclaration d)
     {
     }
 

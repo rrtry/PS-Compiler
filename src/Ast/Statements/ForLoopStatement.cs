@@ -1,5 +1,6 @@
 namespace Ast.Statements;
 
+using Ast.Declarations;
 using Ast.Expressions;
 
 public sealed class ForLoopStatement : Statement
@@ -12,14 +13,14 @@ public sealed class ForLoopStatement : Statement
         BlockStatement body
     )
     {
-        IteratorName = iteratorName;
+        Iterator = new ForLoopIteratorDeclaration(iteratorName);
         StartValue = startValue;
         EndCondition = endCondition;
         StepValue = stepValue;
         Body = body;
     }
 
-    public string IteratorName { get; }
+    public ForLoopIteratorDeclaration Iterator { get; }
 
     public AstNode StartValue { get; }
 

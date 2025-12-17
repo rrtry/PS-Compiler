@@ -89,7 +89,7 @@ public class InterpreterTests
                     while (i >= 0) 
                     {
                         let ch = substr(s, i, 1);
-                        result = strconcat(result, ch);
+                        result = sconcat(result, ch);
                         i = i - 1;
                     }
 
@@ -148,18 +148,18 @@ public class InterpreterTests
         {
             {
                 @"
-                let x = stof(input());
-                let y = stof(input());
-                let z = stof(input());
+                let x: float = stof(input());
+                let y: float = stof(input());
+                let z: float = stof(input());
 
-                fn solve(a: float, b: float, c: float) 
+                fn solve(a: float, b: float, c: float): int
                 {
                     if (a == 0) 
                     {
                         if (b != 0) 
                         {
                             let root1 = -c / b;
-                            print(root1);
+                            printf(root1, 2);
                             return 1;
                         }
                     }
@@ -171,14 +171,14 @@ public class InterpreterTests
                             let sqrt_disc = sqrt(disc);
                             let root1 = (-b + sqrt_disc) / (2 * a);
                             let root2 = (-b - sqrt_disc) / (2 * a);
-                            print(root1);
-                            print(root2);
+                            printf(root1, 2);
+                            printf(root2, 2);
                             return 2;
                         }
                         if (disc == 0) 
                         {
                             let root1 = -b / (2 * a);
-                            print(root1);
+                            printf(root1, 2);
                             return 1;
                         }
                     }
@@ -202,7 +202,7 @@ public class InterpreterTests
                         return 1;
                     }
 
-                    let limit = sqrt(n);
+                    let limit = sqrt(itof(n));
                     let i = 3;
                     while (i <= limit) 
                     {
@@ -244,9 +244,9 @@ public class InterpreterTests
                     let curr  = 0;
 
                     for (let i = 2; i <= n; i = i + 1) {
-                      curr = prev1 + prev2;
-                      prev2 = prev1;
-                      prev1 = curr;
+                        curr = prev1 + prev2;
+                        prev2 = prev1;
+                        prev1 = curr;
                     }
 
                     return curr;
@@ -268,10 +268,11 @@ public class InterpreterTests
                 )
             },
             {
-                @"fn add(a: int, b: int) {
+                @"fn add(a: int, b: int): int {
                     return a + b;
                 }
-                print(add(2, 3));",
+                let z = add(2, 3);
+                print(z);",
                 new Tuple<List<string>, List<string>>(
                     new List<string> { },
                     new List<string> { "5" }

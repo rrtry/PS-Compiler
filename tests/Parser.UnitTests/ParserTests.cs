@@ -11,7 +11,7 @@ public class ParserTests
     public void Can_parse_statements(string source, List<string> expected)
     {
         Parser p = new Parser(source);
-        List<string> evaluated = p.Parse();
+        List<string> evaluated = p.Eval();
         Assert.Equal(expected, evaluated);
     }
 
@@ -20,7 +20,7 @@ public class ParserTests
     public void Can_interpret_simple_programs(string source, List<string> expected)
     {
         Parser p = new Parser(source);
-        List<string> evaluated = p.Parse();
+        List<string> evaluated = p.Eval();
         Assert.Equal(expected.Count, evaluated.Count);
 
         for (int i = 0; i < evaluated.Count; i++)

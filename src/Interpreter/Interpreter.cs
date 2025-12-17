@@ -2,22 +2,28 @@ namespace Interpreter;
 
 using Parser;
 using Execution;
+using Semantics;
+using Runtime;
+using Ast;
 
 public class Interpreter
 {
     private readonly Context context;
     private readonly IEnvironment environment;
+    private readonly Builtins builtins;
 
     public Interpreter()
     {
         environment = new ConsoleEnvironment();
         context = new Context(environment);
+        builtins = new Builtins(environment);
     }
 
-    public Interpreter(Context context, IEnvironment environment)
+    public Interpreter(Context cxt, IEnvironment env)
     {
-        this.context = context;
-        this.environment = environment;
+        context = cxt;
+        environment = env;
+        builtins = new Builtins(environment);
     }
 
     /// <summary>
@@ -32,6 +38,12 @@ public class Interpreter
         }
 
         Parser parser = new(context, environment, sourceCode);
-        parser.Parse();
+        BlockStatement program = parser.Parse();
+
+        SemanticsChecker semanticsChecker = new(builtins.Functions, builtins.Types);
+        semanticsChecker.Check(program);
+
+        AstEvaluator evaluator = new AstEvaluator(context);
+        evaluator.Evaluate(program);
     }
 }

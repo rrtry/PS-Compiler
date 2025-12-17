@@ -147,6 +147,19 @@ public class Context
                 )
             },
             {
+                "printf",
+                new(
+                    "printf",
+                    [ new NativeFunctionParameter("f", ValueType.Float), new NativeFunctionParameter("p", ValueType.Int),],
+                    ValueType.Void,
+                    arguments =>
+                    {
+                        environment.Print(arguments[0].AsDouble().ToString($"F{arguments[1]}"));
+                        return Value.Void;
+                    }
+                )
+            },
+            {
                 "prints",
                 new(
                     "prints",

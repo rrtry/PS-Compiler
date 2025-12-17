@@ -22,9 +22,11 @@ public interface IAstVisitor
 
     public void Visit(VariableDeclaration d);
 
-    public void Visit(AbstractFunctionDeclaration d);
+    public void Visit(FunctionDeclaration d);
 
     public void Visit(ParameterDeclaration d);
+
+    public void Visit(ForLoopIteratorDeclaration d);
 
     public void Visit(IfElseStatement s);
 

@@ -36,7 +36,7 @@ public class Parser
         this.evaluator = new AstEvaluator(context);
     }
 
-    public List<string> Parse()
+    public List<string> Eval()
     {
         while (tokens.Peek().Type != TokenType.Eof)
         {
@@ -45,6 +45,17 @@ public class Parser
         }
 
         return environment.GetEvaluated();
+    }
+
+    public BlockStatement Parse()
+    {
+        List<AstNode> nodes = new();
+        while (tokens.Peek().Type != TokenType.Eof)
+        {
+            nodes.Add(ParseStatement());
+        }
+
+        return new BlockStatement(nodes);
     }
 
     /// <summary>

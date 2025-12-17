@@ -1,10 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <ProjectReference Include="..\Parser\Parser.csproj" />
-    <ProjectReference Include="..\Execution\Execution.csproj" />
     <ProjectReference Include="..\Runtime\Runtime.csproj" />
-    <ProjectReference Include="..\Semantics\Semantics.csproj" />
+    <ProjectReference Include="..\Ast\Ast.csproj" />
   </ItemGroup>
 
   <PropertyGroup>
