@@ -29,21 +29,18 @@ public class CheckTypesPass : AbstractPass
     public override void Visit(FunctionDeclaration d)
     {
         base.Visit(d);
-        /*
-        if (d.Body.Statements.Count > 0)
+        if (d.DeclaredType != null &&
+            d.DeclaredType.ResultType != ValueType.Void)
         {
             AstNode lastStatement = d.Body.Statements.Last();
-            if (d.ResultType != ValueType.Void)
+            if (lastStatement is not ReturnStatement)
             {
-                if (lastStatement is not ReturnStatement)
-                {
-                    throw new TypeErrorException("Function return type doesn't match");
-                }
-
-                ReturnStatement returnStatement = (ReturnStatement)lastStatement;
-                CheckAreSameTypes("return expression", returnStatement.ReturnValue, d.ResultType);
+                throw new TypeErrorException("Function return type doesn't match");
             }
-        } */
+
+            ReturnStatement returnStatement = (ReturnStatement)lastStatement;
+            CheckAreSameTypes("return expression", returnStatement.ReturnValue, d.ResultType);
+        }
     }
 
     /// <summary>

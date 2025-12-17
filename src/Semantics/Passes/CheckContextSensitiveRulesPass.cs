@@ -58,6 +58,11 @@ public sealed class CheckContextSensitiveRulesPass : AbstractPass
 
     public override void Visit(FunctionDeclaration d)
     {
+        if (expressionContextStack.Peek() != ExpressionContext.Default)
+        {
+            throw new InvalidExpressionException("Function declaration is only allowed on the top level");
+        }
+
         expressionContextStack.Push(ExpressionContext.InsideFunction);
         try
         {

@@ -1,6 +1,9 @@
 ﻿using Execution;
 
 using Runtime;
+
+using Semantics.Exceptions;
+
 using Xunit.Sdk;
 
 namespace Interpreter.Specs;
@@ -31,6 +34,254 @@ public class InterpreterTests
                 throw new XunitException($"Expected: {expectedOutput[i]}, got: {evaluated[i]}");
             }
         }
+    }
+
+    public List<string> RunProgram(string source, List<string> input = null)
+    {
+        FakeEnvironment environment = new FakeEnvironment();
+        Context context = new Context(environment);
+
+        if (input != null)
+        {
+            environment.SetProgramInput(input);
+        }
+
+        Interpreter interpreter = new Interpreter(context, environment);
+        interpreter.Execute(source);
+        return environment.GetEvaluated();
+    }
+
+    [Fact]
+    public void Assignment_incorrect_type_float()
+    {
+        string src = @"
+            let x = 1;
+            x = 2.0;
+        ";
+
+        Assert.ThrowsAny<TypeErrorException>(() => RunProgram(src));
+    }
+
+    [Fact]
+    public void Declaration_incorrect_type_float()
+    {
+        string src = @"
+            let x: int = 1.0;
+        ";
+
+        Assert.ThrowsAny<TypeErrorException>(() => RunProgram(src));
+    }
+
+    [Fact]
+    public void Declaration_incorrect_type_string()
+    {
+        string src = @"
+            let x: int = ""1.0"";
+        ";
+
+        Assert.ThrowsAny<TypeErrorException>(() => RunProgram(src));
+    }
+
+    [Fact]
+    public void Nested_function_declaration()
+    {
+        string src = @"
+            fn add(a: int, b: int): int {
+                fn subtract(c: int, d: int): int {
+                    return c - d;
+                }
+                return a + b;
+            }
+            let a: int = add(1, 2);
+            print(a);
+        ";
+
+        Assert.ThrowsAny<InvalidExpressionException>(() => RunProgram(src));
+    }
+
+    [Fact]
+    public void Function_with_return_type()
+    {
+        string src = @"
+            fn add(a: int, b: int): int {
+                return a + b;
+            }
+            let a: int = add(1, 2);
+            print(a);
+        ";
+
+        List<string> outp = RunProgram(src);
+        Assert.Equal(new List<string> { "3" }, outp);
+    }
+
+    [Fact]
+    public void Function_without_return_type()
+    {
+        string src = @"
+            fn write(a: int, b: int) {
+                print(a + b);
+            }
+            write(1, 2);
+        ";
+
+        List<string> outp = RunProgram(src);
+        Assert.Equal(new List<string> { "3" }, outp);
+    }
+
+    [Fact]
+    public void Local_variable_not_accessible_outside_function()
+    {
+        string src = @"
+            fn f(): int {
+                let a = 5;
+                return 0;
+            }
+            f();
+            print(a);
+        ";
+
+        Assert.ThrowsAny<Exception>(() => RunProgram(src));
+    }
+
+    [Fact]
+    public void Parameter_can_be_shadowed_by_local_variable()
+    {
+        string src = @"
+            fn f(a: int): int {
+                let a = a + 1;
+                print(a);
+                return 0;
+            }
+            f(1);
+        ";
+
+        Assert.ThrowsAny<Exception>(() => RunProgram(src));
+    }
+
+    [Fact]
+    public void Parameter_assignment_semantics_value_vs_reference()
+    {
+        string src = @"
+            fn inc(a: int): int {
+                a = a + 1;
+                return 0;
+            }
+            let x = 1;
+            inc(x);
+            print(x);
+        ";
+
+        List<string> outp = RunProgram(src);
+        Assert.Equal(new List<string> { "1" }, outp);
+    }
+
+    [Fact]
+    public void Argument_count_mismatch_raises_error()
+    {
+        string src1 = @"
+            fn f(a: int): int { print(a); return 0; }
+            f();
+        ";
+
+        string src2 = @"
+            fn f(a: int): int { print(a); return 0; }
+            f(1, 2);
+        ";
+
+        Assert.ThrowsAny<Exception>(() => RunProgram(src1));
+        Assert.ThrowsAny<Exception>(() => RunProgram(src2));
+    }
+
+    [Fact]
+    public void Evaluation_order_of_actual_parameters_left_to_right()
+    {
+        string src = @"
+            fn f(a: int, b: int): int { print(a); print(b); return 0; }
+            f(stoi(input()), stoi(input()));
+        ";
+
+        List<string> outp = RunProgram(src, new List<string> { "10", "20" });
+        Assert.Equal(new List<string> { "10", "20" }, outp);
+    }
+
+    [Fact]
+    public void Recursion_and_mutual_recursion()
+    {
+        string fact = @"
+            fn fact(n: int): int {
+                if (n == 0) { return 1; }
+                return n * fact(n - 1);
+            }
+            print(fact(6));
+        ";
+
+        List<string> outpFact = RunProgram(fact);
+        Assert.Equal(new List<string> { "720" }, outpFact);
+
+        string mutual = @"
+            fn even(n: int): int {
+                if (n == 0) { return 1; }
+                return odd(n - 1);
+            }
+            fn odd(n: int): int {
+                if (n == 0) { return 0; }
+                return even(n - 1);
+            }
+            print(even(4));
+            print(odd(4));
+        ";
+
+        Assert.ThrowsAny<Exception>(() => RunProgram(mutual));
+    }
+
+    [Fact]
+    public void Condition_truthiness_zero_is_false_nonzero_true()
+    {
+        string src = @"
+            if (0) { print(1); } else { print(2); }
+            if (1) { print(3); } else { print(4); }
+        ";
+
+        List<string> outp = RunProgram(src);
+        Assert.Equal(new List<string> { "2", "3" }, outp);
+    }
+
+    [Fact]
+    public void While_accepts_integer_condition_and_break_continue_positions()
+    {
+        string src = @"
+            let i = 0;
+            while (i < 5) {
+                i = i + 1;
+                if (i == 3) { continue; }
+                if (i == 5) { break; }
+                print(i);
+            }
+        ";
+
+        List<string> outp = RunProgram(src);
+        Assert.Equal(new List<string> { "1", "2", "4" }, outp);
+    }
+
+    [Fact]
+    public void Invalid_assignment_targets_raise_error()
+    {
+        string src1 = @"1 = 2;";
+        string src2 = @"print() = 1;";
+
+        Assert.ThrowsAny<Exception>(() => RunProgram(src1));
+        Assert.ThrowsAny<Exception>(() => RunProgram(src2));
+    }
+
+    [Fact]
+    public void Using_uninitialized_variable_raises_error()
+    {
+        string src = @"
+            let x: int;
+            print(x);
+        ";
+
+        Assert.ThrowsAny<Exception>(() => RunProgram(src));
     }
 
     public static TheoryData<string, Tuple<List<string>, List<string>>> GetMixedTypePrograms()

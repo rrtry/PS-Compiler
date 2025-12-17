@@ -79,15 +79,16 @@ public abstract class AbstractPass : IAstVisitor
         d.Body.Accept(this);
     }
 
+    public virtual void Visit(ReturnStatement s)
+    {
+        s.ReturnValue.Accept(this);
+    }
+
     public virtual void Visit(LiteralExpression e)
     {
     }
 
     public virtual void Visit(ContinueLoopStatement s)
-    {
-    }
-
-    public virtual void Visit(ReturnStatement s)
     {
     }
 

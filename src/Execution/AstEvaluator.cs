@@ -304,6 +304,9 @@ public class AstEvaluator : IAstVisitor
     private void InvokeFunction(FunctionCallExpression e, FunctionDeclaration function)
     {
         bool hasReturn = false;
+        bool hasReturnType = function.DeclaredType != null &&
+                             function.DeclaredType.ResultType != ValueType.Void;
+
         Value returnValue = Value.Void;
         context.PushScope(new Scope());
 
@@ -326,11 +329,12 @@ public class AstEvaluator : IAstVisitor
         }
         finally
         {
-            if (!hasReturn)
+            if (!hasReturn && hasReturnType)
             {
                 throw new InvalidOperationException("Function has to have a return statement in the end");
             }
-            else
+
+            if (hasReturn)
             {
                 values.Pop(); // First pop return statement value
                 returnValue = values.Pop(); // Then the expression we return;
@@ -339,6 +343,9 @@ public class AstEvaluator : IAstVisitor
             context.PopScope();
         }
 
-        values.Push(returnValue);
+        if (hasReturn)
+        {
+            values.Push(returnValue);
+        }
     }
 }

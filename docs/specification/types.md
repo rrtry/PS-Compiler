@@ -59,7 +59,7 @@
 -   Если операнды `int` и `int` → результат `int`.
 -   Если один из операндов `float` → второй приводится к `float`,
     результат `float`.
--   `%` допустим только для `int`.
+-   `%` допустим только для `float` и `int`.
 
 ### 3.2. Операторы сравнения (`<`, `>`, `<=`, `>=`, `==`, `!=`)
 
@@ -71,7 +71,7 @@
 
 ### 3.4. Строковые операции
 
--   Конкатенация: `concat(a, b)`
+-   Конкатенация: `sconcat(a, b)`
 -   Подстрока: `substr(s, start, length)`
 
 ------------------------------------------------------------------------
@@ -80,12 +80,9 @@
 
 ### 4.1. Объявление переменных
 
-    let x: int;
-    x = 40;
-    let y: float;
-    y = 3.33
-    let name: string;
-    name = "Bob";
+    let x: int = 40;
+    let y: float = 3.33;
+    let name: string = "Bob";
 
 ### 4.2. Правила семантики
 
@@ -136,19 +133,14 @@
 -   Поддержка всех арифметических операторов.
 -   Преобразование в int:
 
-
-
-    6.5 → 7
-    7.5 → 8
-    6.3 → 6
-    7.3 → 7
+    6.5 → 6
 
 ------------------------------------------------------------------------
 
 ## 8. Тип string --- детали
 
 -   Unicode, хранится как UTF‑8.
--   Конкатенация --- `concat(a, b)`
+-   Конкатенация --- `sconcat(a, b)`
 -   Подстрока --- `substr(a, start, length)`
 -   Сравнение по Unicode‑кодам символов
 -   Не является выражением
@@ -156,79 +148,64 @@
 ------------------------------------------------------------------------
 
 ## print и input
-- `print(expr: string)` — выводит строку
-- Чтобы вывести число: `print(str(x))`
-- `input(var)` — считывает строку и пытается привести к типу переменной `var`
+- `prints(expr: string)` — выводит строку
+- Чтобы вывести число: `print(x)`
+- `input()` — считывает строку
 
 ## 9. Примеры программ
 
 ### ReverseString
 
 ```
-fn reverse(s: string): string
+fn reverse(s: str): str
 {
-    let len = 0;
-    while (substr(s, len, 1) != "\n") 
-    {
-        len++;
-    }
+    let len = strlen(s);
+    let result = """";
 
-    let result = "";
     let i = len - 1;
-    while (i >= 0) {
+    while (i >= 0) 
+    {
         let ch = substr(s, i, 1);
-        result = concat(result, ch);
-        i--;
+        result = sconcat(result, ch);
+        i = i - 1;
     }
 
     return result;
 }
 
-fn main()
-{
-    let text: string;
-    text = input();
-
-    let reversed = reverse(text);
-    print(reversed);
-}
+let text = input();
+let reversed = reverse(text);
+prints(reversed);
 ```
 
 
 ### FizzBuzz
 ```
-fn main()
+let x = 1;
+while (x) 
 {
-    print("Введите числа (0 — выход):");
-    let x = true;
-    while (x = true) 
+    let n = stoi(input());
+    if (n == 0) 
     {
-        let n: int;
-        n = int(input());
-
-        if (n == 0) 
-        {
-            print("Выход");
-            break;
-        }
-
-        if (n % 15 == 0) 
-        {
-            print("FizzBuzz");
-        }
-        else if (n % 3 == 0) 
-        {
-            print("Fizz");
-        }
-        else if (n % 5 == 0) 
-        {
-            print("Buzz");
-        }
-        else 
-        {
-            print(str(n));
-        }
+        break;
     }
+
+    if (n % 15 == 0) 
+    {
+        prints(""FizzBuzz"");
+        continue;
+    }
+    if (n % 3 == 0) 
+    {
+        prints(""Fizz"");
+        continue;
+    }
+    if (n % 5 == 0) 
+    {
+        prints(""Buzz"");
+        continue;
+    }
+    prints(itos(n));
 }
 ```
 
@@ -236,48 +213,38 @@ fn main()
 ### CountVowels
 
 ```
-fn is_vowel(ch: string): int
+"fn is_vowel(ch: str): int
 {
-    let lower = ch;
-    if (ch == "A" || ch == "E" || ch == "I" || ch == "O" || ch == "U" || ch == "Y") 
+    if (ch == ""A"" || ch == ""E"" || ch == ""I"" || ch == ""O"" || ch == ""U"" || ch == ""Y"") 
     {
-    
+        return 1;
     }
-    else if (ch == "a" || ch == "e" || ch == "i" || ch == "o" || ch == "u" || ch == "y") 
+    if (ch == ""a"" || ch == ""e"" || ch == ""i"" || ch == ""o"" || ch == ""u"" || ch == ""y"") 
     {
-
+        return 1;
     }
-    else 
-    {
-        return 0;
-    }
-    return 1;
+    return 0;
 }
 
-fn count_vowels(s: string): int
+fn count_vowels(s: str): int 
 {
     let count = 0;
+    let len = strlen(s);
     let i = 0;
-    let ch = substr(s, i, 1);
 
-    while (ch != "\n") 
+    while (i < len) 
     {
-        if (is_vowel(ch) = true) 
+        let sub = substr(s, i, 1);
+        if (is_vowel(sub)) 
         {
-            count++;
+            count = count + 1;
         }
-        i++;
-        ch = substr(s, i, 1);
+        i = i + 1;
     }
     return count;
 }
 
-fn main()
-{
-    let text: string;
-    input(text);
-
-    let vowels = count_vowels(text);
-    print(str(vowels));
-}
+let text = input();
+let vowels = count_vowels(text);
+prints(itos(vowels));
 ```
