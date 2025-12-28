@@ -195,7 +195,7 @@ public class Parser
     }
 
     /// <summary>
-    /// if_statement = "if" , "(" , expression , ")" , block , { "else" , "if" , "(" , expression , ")" , block } , [ "else" , block ] ;.
+    /// if_statement = "if" , "(" , expression , ")" , block , [ "else" , block ] ;.
     /// </summary>
     private IfElseStatement ParseIfStatement()
     {
@@ -470,13 +470,12 @@ public class Parser
     }
 
     /// <summary>
-    /// power = unary, [ ("^" | "**"), power ] ;.
+    /// power = unary, [ ("^"), power ] ;.
     /// </summary>
     private Expression ParsePower()
     {
         Expression left = ParseUnary();
 
-        // TODO: заменить ^ на **
         if (tokens.Peek().Type == TokenType.Exp)
         {
             tokens.Advance();

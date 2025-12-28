@@ -199,7 +199,7 @@ public class AstEvaluator : IAstVisitor
                 {
                 }
 
-                e.StepValue!.Accept(this);
+                e.UpdateExpr!.Accept(this);
                 values.Pop();
             }
         }

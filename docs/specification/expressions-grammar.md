@@ -102,13 +102,10 @@ relational     = additive , { ("<" | ">" | "<=" | ">=") , additive } ;
 additive       = multiplicative , { ("+" | "-") , multiplicative } ;
 multiplicative = unary , { ("*" | "/" | "%") , unary } ;
 
-unary          = { ("+" | "-" | "!" | "++" | "--") } , power ;
-power          = postfix , { ("^" | "**") , power } ;
-postfix        = primary , { "++" | "--" } ;
+unary          = { ("+" | "-" | "!") } , power ;
+power          = unary , { ("^") , power } ;
 
 primary        = number
-               | "Pi" | "Euler"
-               | "true" | "false"
                | identifier
                | identifier , "(" , [ argument_list ] , ")"
                | "(" , numeric_expression , ")" ;
@@ -122,17 +119,15 @@ digit          = "0".."9" ;
 hex_digit      = "0".."9" | "A".."F" | "a".."f" ;
 identifier     = letter , { letter | digit | "_" } ;
 letter         = "A".."Z" | "a".."z" ;
-
 ```
 
 ### 3.2. Строковые выражения
 
 ```ebnf
 string_expression = string_literal
-                  | identifier                                 (* переменная типа string *)
+                  | identifier (* переменная типа string *)
                   | "concat" , "(" , string_expression , "," , string_expression , ")"
                   | "substr" , "(" , string_expression , "," , numeric_expression , "," , numeric_expression , ")"
-                  | "str" , "(" , numeric_expression , ")" ;
 
 string_literal = """ , { character } , """ ;
 character      = /* любой символ, кроме ", или \" */ ;

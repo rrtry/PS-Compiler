@@ -85,7 +85,6 @@ x + 10;    // Ошибка — выражение ничего не делает
 ```ebnf
 
 program          = { function_definition } , entry_point ;
-entry_point      = "fn" , "main" , "(" , [ parameter_list ] , ")" , block ;
 function_definition = "fn" , identifier , "(" , [ parameter_list ] , ")" , ":" , type , block ;
 parameter_list   = parameter , { "," , parameter } ;
 parameter        = identifier , ":" , type ;
@@ -111,7 +110,6 @@ statement =
 ```
 
 ### Объявление переменной
-
 *initializer может быть выражением для числовых типов, или строковым литералом / string-специфичной конструкцией для string.*
 
 ```ebnf
@@ -139,9 +137,7 @@ assignment = identifier , "=" , ( numeric_expression | string_expression ) ;
 
 ```ebnf
 function_call = identifier , "(" , [ argument_list ] , ")" ;
-
 argument_list = argument , { "," , argument } ;
-
 argument =
       numeric_expression
     | string_expression;
@@ -152,7 +148,6 @@ argument =
 
 ```ebnf
 return_statement = "return" , [ return_value ] , ";" ;
-
 return_value =
       numeric_expression          (* для int/float *)
     | string_expression           (* для string *)
@@ -165,7 +160,6 @@ return_value =
 ```ebnf
 if_statement =
     "if" , "(" , numeric_expression , ")" , block ,
-    { "else" , "if" , "(" , numeric_expression , ")" , block } ,
     [ "else" , block ] ;
 
 ```

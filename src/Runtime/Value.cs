@@ -45,11 +45,6 @@ public class Value : IEquatable<Value>
         value = v;
     }
 
-    public bool IsNumeric()
-    {
-        return IsDouble() || IsLong();
-    }
-
     public bool IsDouble()
     {
         return value switch

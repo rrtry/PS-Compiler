@@ -9,14 +9,14 @@ public sealed class ForLoopStatement : Statement
         string iteratorName,
         AstNode startValue,
         Expression endCondition,
-        Expression? stepValue,
+        Expression? updateExpr,
         BlockStatement body
     )
     {
         Iterator = new ForLoopIteratorDeclaration(iteratorName);
         StartValue = startValue;
         EndCondition = endCondition;
-        StepValue = stepValue;
+        UpdateExpr = updateExpr;
         Body = body;
     }
 
@@ -26,7 +26,7 @@ public sealed class ForLoopStatement : Statement
 
     public Expression EndCondition { get; }
 
-    public Expression? StepValue { get; }
+    public Expression? UpdateExpr { get; }
 
     public BlockStatement Body { get; }
 

@@ -60,7 +60,7 @@ public abstract class AbstractPass : IAstVisitor
     {
         e.StartValue.Accept(this);
         e.EndCondition.Accept(this);
-        e.StepValue?.Accept(this);
+        e.UpdateExpr?.Accept(this);
         e.Body.Accept(this);
     }
 

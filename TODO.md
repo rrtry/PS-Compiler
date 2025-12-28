@@ -1,2 +1,4 @@
 # TODO
-- Разрешить наименование внутри ForLoopStatement (StepValue -> UpdateExpr)
+- Убрать ValueType.Nil
+- ParseVariableDeclaration, убрать обязательное присваивание при объявлении переменной
+- Спецификация не требует, чтобы последней инструкцией в функции была return.

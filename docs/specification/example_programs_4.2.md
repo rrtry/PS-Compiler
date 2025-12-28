@@ -3,17 +3,10 @@
 ## 1. SumNumbers
 
 ```
-fn main() {
-    let a;
-    let b;
-
-    input(a);
-    input(b);
-
-    let sum = a + b;
-
-    print(sum);
-}
+let a = stoi(input());
+let b = stoi(input());
+let sum = a + b;
+print(sum);
 ```
 
 ---
@@ -21,15 +14,9 @@ fn main() {
 ## 2. CircleSquare
 
 ```
-fn main() {
-    let r;
-    r = 1;
-    input(r);
-
-    let area = Pi * r * r;
-
-    print(area);
-}
+let r = input();
+let area = Pi * r * r;
+printf(area, 2);
 ```
 
 ---
@@ -37,20 +24,8 @@ fn main() {
 ## 3. GeometricMean
 
 ```
-fn main() {
-    // Вычисление среднего геометрического двух чисел
-    let a;
-    let b;
-
-    /*
-     Ввод двух чисел
-    */
-    input(a);
-    input(b);
-
-    let gmean = (a * b) ** 0.5;
-
-    // Вывод результата
-    print(gmean);
-}
+let a = stoi(input());
+let b = stoi(input());
+let gmean = (a * b) ** 0.5;
+print(gmean);
 ```

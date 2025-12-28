@@ -36,7 +36,7 @@ public class InterpreterTests
         }
     }
 
-    public List<string> RunProgram(string source, List<string> input = null)
+    public List<string> RunProgram(string source, List<string>? input = null)
     {
         FakeEnvironment environment = new FakeEnvironment();
         Context context = new Context(environment);
@@ -97,6 +97,22 @@ public class InterpreterTests
         ";
 
         Assert.ThrowsAny<InvalidExpressionException>(() => RunProgram(src));
+    }
+
+    [Fact]
+    public void Break_in_function_body()
+    {
+        string src = @"
+            fn add(a: int, b: int): int {
+                let c = a + b;
+                break;
+                return c;
+            }
+            let a: int = add(1, 2);
+            print(a);
+        ";
+
+        Assert.ThrowsAny<Exception>(() => RunProgram(src));
     }
 
     [Fact]

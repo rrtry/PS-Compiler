@@ -17,7 +17,7 @@ public class Scope
             return true;
         }
 
-        value = Value.Nil;
+        value = null;
         return false;
     }
 
